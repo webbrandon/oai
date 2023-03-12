@@ -21,22 +21,28 @@ async fn main() -> Result<(), Error> {
     let mut cli_options = CliInterface::from_args();
     init_log(&cli_options.verbose);
 
-    let prompt = &cli_options.prompt();
-    let token = cli_options.clone().api_auth_token();
-    let user = &cli_options.user();
-    let model = &cli_options.model();
-    let max_tokens = &cli_options.max_tokens();
-    let temperature = &cli_options.temperature();
-
-    let mut openai_handler = OpenAIHandler::new_with_token(token);
+    let mut openai_handler = OpenAIHandler::new_with_token(cli_options.clone().api_auth_token());
     openai_handler.set_request(OpenAIRequest::OpenAICompletionsRequest(OpenAICompletionsRequest {
-        model: model.to_owned(),
-        prompt: prompt.to_owned(),
-        max_tokens: max_tokens.to_owned(),
-        temperature: temperature.to_owned(),
-        user: user.to_owned(),
+        model: cli_options.model().to_owned(),
+        prompt: cli_options.prompt().to_owned(),
+        max_tokens: cli_options.max_tokens().to_owned(),
+        temperature: cli_options.temperature().to_owned(),
+        user: cli_options.user().to_owned(),
     }));
-    openai_handler.process().await?;
+    let openai_response = openai_handler.process().await;
+
+    match openai_response {
+        Ok(response) => {
+            match response {
+                openai::OpenAIResponse::OpenAICompletionsResponse(data) => {
+                    data.print_choices();
+                }
+                openai::OpenAIResponse::None => {}
+            }
+        }
+        Err(_) => {}
+    }
+
     Ok(())
 }
 
