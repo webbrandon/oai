@@ -1,11 +1,11 @@
 #[macro_use]
 extern crate log;
 
-mod chatgbt;
+mod openai;
 mod cli;
 mod cmdln;
 
-use chatgbt::ChatGPTRequest;
+use openai::{OpenAIHandler, OpenAICompletionsRequest, OpenAIRequest};
 use cli::CliInterface;
 use structopt::StructOpt;
 use reqwest::Error;
@@ -22,21 +22,22 @@ async fn main() -> Result<(), Error> {
     init_log(&cli_options.verbose);
 
     let prompt = &cli_options.prompt();
-    let token = &cli_options.api_auth_token();
+    let token = cli_options.clone().api_auth_token();
     let user = &cli_options.user();
     let model = &cli_options.model();
     let max_tokens = &cli_options.max_tokens();
     let temperature = &cli_options.temperature();
 
-    let chatgbt_request = ChatGPTRequest {
+    let mut openai_handler = OpenAIHandler::new_with_token(token);
+    openai_handler.set_request(OpenAIRequest::OpenAICompletionsRequest(OpenAICompletionsRequest {
         model: model.to_owned(),
         prompt: prompt.to_owned(),
         max_tokens: max_tokens.to_owned(),
         temperature: temperature.to_owned(),
         user: user.to_owned(),
-    };
-
-    chatgbt_request.converse(token).await
+    }));
+    openai_handler.process().await?;
+    Ok(())
 }
 
 fn init_log(is_verbose: &u8) {
