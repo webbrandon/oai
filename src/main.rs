@@ -5,8 +5,8 @@ mod openai;
 mod cli;
 mod cmdln;
 
-use openai::{OpenAIHandler, OpenAICompletionsRequest, OpenAIRequest};
-use cli::CliInterface;
+use openai::{OpenAIHandler, OpenAICompletionsRequest, OpenAIRequest, OpenAIModelsRequest, OpenAIFilesRequest, OpenAIFileUploadRequest};
+use cli::{CliInterface, CliRequest};
 use structopt::StructOpt;
 use reqwest::Error;
 use std::env;
@@ -22,13 +22,38 @@ async fn main() -> Result<(), Error> {
     init_log(&cli_options.verbose);
 
     let mut openai_handler = OpenAIHandler::new_with_token(cli_options.clone().api_auth_token());
-    openai_handler.set_request(OpenAIRequest::OpenAICompletionsRequest(OpenAICompletionsRequest {
-        model: cli_options.model().to_owned(),
-        prompt: cli_options.prompt().to_owned(),
-        max_tokens: cli_options.max_tokens().to_owned(),
-        temperature: cli_options.temperature().to_owned(),
-        user: cli_options.user().to_owned(),
-    }));
+    match cli_options.args {
+        Some(subcommand) => {
+            match subcommand {
+                CliRequest::CliFiles(request_settings) => {
+                    match &request_settings.file() {
+                        Some(file_path) => {
+                            openai_handler.set_request(OpenAIRequest::OpenAIFileUploadRequest(OpenAIFileUploadRequest {
+                                file: file_path.to_owned(),
+                                purpose: request_settings.purpose().to_owned()
+                            }));
+                        },
+                        None => {
+                            openai_handler.set_request(OpenAIRequest::OpenAIFilesRequest(OpenAIFilesRequest {}));
+                        }
+                    }
+                },
+                CliRequest::CliModels(_) => {
+                    openai_handler.set_request(OpenAIRequest::OpenAIModelsRequest(OpenAIModelsRequest {}));
+                },
+            }
+        },
+        None => {
+            openai_handler.set_request(OpenAIRequest::OpenAICompletionsRequest(OpenAICompletionsRequest {
+                model: cli_options.model().to_owned(),
+                prompt: cli_options.prompt().to_owned(),
+                max_tokens: cli_options.max_tokens().to_owned(),
+                temperature: cli_options.temperature().to_owned(),
+                user: cli_options.user().to_owned(),
+            }));
+        },
+    }
+
     let openai_response = openai_handler.process().await;
 
     match openai_response {
@@ -36,8 +61,17 @@ async fn main() -> Result<(), Error> {
             match response {
                 openai::OpenAIResponse::OpenAICompletionsResponse(data) => {
                     data.print_choices();
-                }
-                openai::OpenAIResponse::None => {}
+                },
+                openai::OpenAIResponse::OpenAIFilesResponse(data) => {
+                    data.print_files()
+                },
+                openai::OpenAIResponse::OpenAIFileUploadResponse(data) => {
+                    data.print_file()
+                },
+                openai::OpenAIResponse::OpenAIModelsResponse(data) => {
+                    data.print_models()
+                },
+                openai::OpenAIResponse::None => {},
             }
         }
         Err(_) => {}
@@ -53,11 +87,12 @@ fn init_log(is_verbose: &u8) {
     };
     let is_verbose = match environment_override {Some(value)=>{value},None=>{is_verbose.to_owned()}};
     let logging_level = match is_verbose {
-        0 => {LevelFilter::Info},
-        1 => {LevelFilter::Warn},
-        2 => {LevelFilter::Error},
-        3 => {LevelFilter::Debug},
-        4 => {LevelFilter::Trace},
+        0 => {LevelFilter::Off},
+        1 => {LevelFilter::Info},
+        2 => {LevelFilter::Warn},
+        3 => {LevelFilter::Error},
+        4 => {LevelFilter::Debug},
+        5 => {LevelFilter::Trace},
         _ => {LevelFilter::max()},
     };
     Builder::new().filter_level(logging_level).init();

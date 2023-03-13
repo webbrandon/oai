@@ -1,3 +1,9 @@
+mod models;
+mod files;
+
+use models::CliModels;
+use files::CliFiles;
+
 use structopt::StructOpt;
 use structopt::clap::AppSettings::*;
 use std::io::{self, BufRead};
@@ -27,6 +33,27 @@ pub struct CliInterface {
 	/// User ID (default: session username)
 	#[structopt(long = "user", short = "u")]
 	pub user: Option<String>,
+	#[structopt(subcommand)]
+	pub args: Option<CliRequest>,
+}
+
+#[derive(Debug, StructOpt, Clone)]
+#[structopt(
+	global_settings = &[DisableVersion, DisableHelpSubcommand, DeriveDisplayOrder, VersionlessSubcommands],
+)]
+pub enum CliRequest {
+	/// Print list of usable models
+	#[structopt(name = "models")]
+	CliModels(CliModels),
+	/// Print files owned by account
+	#[structopt(name = "files")]
+	CliFiles(CliFiles),
+}
+
+impl CliRequest {
+	pub fn process(&self) {
+		print!("")
+	}
 }
 
 impl CliInterface {

@@ -2,12 +2,6 @@ use serde::{Deserialize, Serialize};
 use crate::openai::response::*;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum OpenAIRequest {
-    OpenAICompletionsRequest(OpenAICompletionsRequest),
-    None
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct OpenAICompletionsRequest {
     pub model: String,
     pub prompt: String,

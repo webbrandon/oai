@@ -104,9 +104,3 @@ Tasks related to new content.
 
 - [x] Create GitHub organization todo-md
 ```
-
-# Clients
-
-* [todo-md-cli](https://github.com/todo-md/todo-md-cli) - Official TODO.md command line tool.
-
-[Add your](https://github.com/todo-md/todo-md/issues/new) client or implementation of TODO.md to this readme file.

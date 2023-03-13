@@ -1,12 +1,6 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum OpenAIResponse {
-    OpenAICompletionsResponse(OpenAICompletionsResponse),
-    None,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct OpenAICompletionsResponse {
     pub choices: Vec<Choice>,
 }
