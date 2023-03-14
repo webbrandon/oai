@@ -18,18 +18,22 @@ To view the interface options anytime use the `-h/--help` flag.
 chatgbt-buddy [FLAGS] [OPTIONS] [prompt]
 
 FLAGS:
--v, --verbose    Verbose mode (-v, -vv, -vvv, etc.)
--h, --help       Prints help information
+  -v, --verbose    Verbose mode (-v, -vv, -vvv, etc.)
+  -h, --help       Prints help information
 
 OPTIONS:
--m, --model <model>                      ID of the model to use [default: text-davinci-003]
-    --max-tokens <max-tokens>            The maximum number of tokens [default: 2048]
--t, --temperature <temperature>          What sampling temperature to use, between 0 and 2 [default: 0.5]
--a, --api-auth-token <api-auth-token>    API Authorization Token [env: API_AUTH_TOKEN=]
--u, --user <user>                        User ID (default: session username)
+  -m, --model <model>                      ID of the model to use [default: text-davinci-003]
+      --max-tokens <max-tokens>            The maximum number of tokens [default: 2048]
+  -t, --temperature <temperature>          What sampling temperature to use, between 0 and 2 [default: 0.5]
+  -a, --api-auth-token <api-auth-token>    API Authorization Token [env: API_AUTH_TOKEN=]
+  -u, --user <user>                        User ID (default: session username)
 
 ARGS:
-<prompt>    Question
+  <prompt>    Question
+
+SUBCOMMANDS:
+  models    Print list of usable models
+  files     Print or upload files for account
 ```
 
 ### OpenAI Authentication Configuration
