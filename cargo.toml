@@ -8,7 +8,7 @@ description = "Talk to Chatgbt on the CLI"
 serde_json = "*"
 json = "*"
 serde = { version = "*", features = ["derive"] }
-reqwest = { version = "*", features = ["blocking", "json"] }
+reqwest = { version = "*", features = ["json", "stream", "multipart", "blocking"] }
 tokio = { version = "*", features = ["full"] }
 log = "*"
 structopt = "0.3.26"
@@ -16,3 +16,4 @@ clap = { version = "2.34.0"}
 env_logger = "*"
 whoami = "*"
 atty = "*"
+tokio-util = { version = "*", features = ["codec"] }
