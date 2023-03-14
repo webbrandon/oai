@@ -1,10 +1,6 @@
 use reqwest::{Error, Response};
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_TYPE};
-use reqwest::{multipart, Body, Client};
-use tokio::fs::File;
-use tokio_util::codec::{BytesCodec, FramedRead};
 use reqwest::multipart::Part;
-use std::io;
 use std::io::Read;
 use std::io::BufReader;
 
@@ -60,15 +56,15 @@ impl OpenAIHandler {
 	        },
 	        "400" => {
 	            info!("Bad Request: {:?}", &response);
-                self.process_error(response)
+                self.process_error(response).await
 	        },
 	        "401" => {
 	            info!("Unauthorized Token: {:?}", &response);
-                self.process_error(response)
+                self.process_error(response).await
 	        },
 	        _ => {
 	            info!("Request Error: {:?}", &response);
-                self.process_error(response)
+                self.process_error(response).await
 	        },
 	    }
     }
@@ -98,14 +94,15 @@ impl OpenAIHandler {
         Ok(self.response.clone())
     }
 
-    fn process_error(&mut self, response: Response) -> Result<OpenAIResponse, Error> {
+    async fn process_error(&mut self, response: Response) -> Result<OpenAIResponse, Error> {
         match response.error_for_status() {
             Ok(error) => {
                 warn!("Request Error: {:#?}", error);
+                debug!("Bad Request Message: {:#?}", error.text().await);
                 Ok(OpenAIResponse::None)
             },
             Err(error) => {
-                warn!("Request Error: {:#?}", &error);
+                warn!("Request Error: {:#?}", error);
                 Err(error)
             }
         }
@@ -144,13 +141,7 @@ impl OpenAIHandler {
         	    client.get(endpoint).headers(self.clone().headers()).send().await
             },
             OpenAIRequest::OpenAIFileUploadRequest(request) => {
-                // let file = match File::open(&request.file).await {
-                //     Ok(content) => content,
-                //     Err(error) => {
-                //         warn!("Error opening file: {:#?}", error);
-                //         std::process::exit(1)
-                //     }
-                // };
+                // async open file 
                 let file = match tokio::fs::File::open(request.file.to_path_buf()).await {
                     Ok(content) => content,
                     Err(error) => {
@@ -160,44 +151,15 @@ impl OpenAIHandler {
                 };
                 let mut reader = BufReader::new(file.into_std().await);
                 let mut buffer = Vec::new();
-
-                // Read file into vector.
                 reader.read_to_end(&mut buffer).unwrap();
 
-                // read file body stream
-                // let stream = FramedRead::new(file, BytesCodec::new());
-                // let file_body = Body::wrap_stream(stream);
+                // create form
                 let filename = String::from(request.file.file_name().unwrap().to_str().unwrap());
                 let purpose = String::from(&request.purpose);
-
-                // let file = tokio::fs::File::open(path.as_ref())
-                //     .await
-                //     .map_err(|e| OpenAIError::FileReadError(e.to_string()))?;
-                // let stream = FramedRead::new(file, BytesCodec::new());
-                // let body = Body::wrap_stream(stream);
-
-                // let file_part = reqwest::multipart::Part::stream(file_body)
-                //     .file_name(filename)
-                //     .mime_str("application/octet-stream")
-                //     .unwrap();
-                // let bytes = match Body::as_bytes(file_body) {
-                //     Some(x) => x,
-                //     None => std::process::exit(1)
-                // };
                 let part = Part::bytes(buffer).file_name(filename);
-                //create the multipart form
-                // let form = multipart::Form::new()
-                //     .part("file", file_part)
-                //     .text("purpose", purpose);
-
                 let form = reqwest::multipart::Form::new().part("file", part.into()).text("purpose", purpose);
-        	    match client.post(endpoint).headers(self.clone().headers()).multipart(form).send().await {
-        	        Ok(x) => {
-                        println!("{:#?}", x);
-                        Ok(x)
-                    }
-        	        Err(_) => {std::process::exit(1)}
-        	    }
+
+        	    client.post(endpoint).headers(self.clone().headers()).multipart(form).send().await
             },
             OpenAIRequest::OpenAIModelsRequest(_) => {
         	    client.get(endpoint).headers(self.clone().headers()).send().await

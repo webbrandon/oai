@@ -45,7 +45,7 @@ pub enum CliRequest {
 	/// Print list of usable models
 	#[structopt(name = "models")]
 	CliModels(CliModels),
-	/// Print files owned by account
+	/// Print or upload files for account
 	#[structopt(name = "files")]
 	CliFiles(CliFiles),
 }

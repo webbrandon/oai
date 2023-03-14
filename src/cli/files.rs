@@ -8,14 +8,21 @@ pub struct CliFiles {
     /// File path to upload
     pub file: Option<PathBuf>,
     /// Purpose for upload
-	#[structopt(long = "purpose", short = "p", default_value = "file-tune")]
+	#[structopt(long = "purpose", short = "p", default_value = "fine-tune")]
     pub purpose: String,
  }
 
 impl CliFiles {
-    /// Get a mutable reference to the cli files's file.
-    pub fn file(&self) -> &Option<PathBuf> {
-        &self.file
+    /// Get a file if passed.
+    pub fn file(&self) -> Option<PathBuf> {
+        match &self.file {
+            Some(file_path) => {
+                Some(file_path.to_owned())
+            }
+            None => {
+                return None
+            }
+        }
     }
 
     /// Get a reference to the cli files's purpose.

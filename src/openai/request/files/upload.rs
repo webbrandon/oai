@@ -10,8 +10,6 @@ pub struct OpenAIFileUploadRequest {
 }
 
 impl OpenAIFileUploadRequest {
-    pub fn new(file: PathBuf, purpose: String) -> Self { Self { file, purpose } }
-    
     pub fn process_response(self, response_body: String) -> OpenAIResponse {
         debug!("Formatting response to type OpenAIFileUploadResponse: {:#?}", response_body);
         let response: OpenAIFileUploadResponse = match serde_json::from_str(&response_body) {
