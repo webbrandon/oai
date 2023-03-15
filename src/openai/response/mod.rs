@@ -12,6 +12,7 @@ pub use models::*;
 pub enum OpenAIResponse {
     OpenAICompletionsResponse(OpenAICompletionsResponse),
     OpenAIFilesResponse(OpenAIFilesResponse),
+    OpenAIFileDeleteResponse(OpenAIFileDeleteResponse),
     OpenAIFileUploadResponse(OpenAIFileUploadResponse),
     OpenAIModelsResponse(OpenAIModelsResponse),
     None,

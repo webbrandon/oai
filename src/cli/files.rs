@@ -10,6 +10,9 @@ pub struct CliFiles {
     /// Purpose for upload
 	#[structopt(long = "purpose", short = "p", default_value = "fine-tune")]
     pub purpose: String,
+    /// Delete a file (eg: file-XjGxS3KTG0uNmNOK362iJua3)
+	#[structopt(long = "delete", short = "d")]
+    pub delete: Option<String>,
  }
 
 impl CliFiles {
@@ -28,5 +31,13 @@ impl CliFiles {
     /// Get a reference to the cli files's purpose.
     pub fn purpose(&self) -> &String {
         &self.purpose
+    }
+
+    /// Delete a file
+    pub fn delete(&self) -> Option<String> {
+        match self.delete.to_owned() {
+            Some(filename) => Some(filename),
+            None => None
+        }
     }
 }

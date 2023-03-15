@@ -12,6 +12,7 @@ pub use models::*;
 pub enum OpenAIRequest {
     OpenAICompletionsRequest(OpenAICompletionsRequest),
     OpenAIFilesRequest(OpenAIFilesRequest),
+    OpenAIFileDeleteRequest(OpenAIFileDeleteRequest),
     OpenAIFileUploadRequest(OpenAIFileUploadRequest),
     OpenAIModelsRequest(OpenAIModelsRequest),
     None

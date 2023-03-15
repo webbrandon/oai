@@ -5,7 +5,7 @@ mod openai;
 mod cli;
 mod cmdln;
 
-use openai::{OpenAIHandler, OpenAICompletionsRequest, OpenAIRequest, OpenAIModelsRequest, OpenAIFilesRequest, OpenAIFileUploadRequest};
+use openai::*;
 use cli::{CliInterface, CliRequest};
 use structopt::StructOpt;
 use reqwest::Error;
@@ -34,7 +34,14 @@ async fn main() -> Result<(), Error> {
                             }));
                         },
                         None => {
-                            openai_handler.set_request(OpenAIRequest::OpenAIFilesRequest(OpenAIFilesRequest {}));
+                            match request_settings.delete() {
+                                Some(filename) => {
+                                    openai_handler.set_request(OpenAIRequest::OpenAIFileDeleteRequest(OpenAIFileDeleteRequest { filename }));
+                                }
+                                None => {
+                                    openai_handler.set_request(OpenAIRequest::OpenAIFilesRequest(OpenAIFilesRequest {}));
+                                }
+                            }
                         }
                     }
                 },
@@ -64,6 +71,9 @@ async fn main() -> Result<(), Error> {
                 },
                 openai::OpenAIResponse::OpenAIFilesResponse(data) => {
                     data.print_files()
+                },
+                openai::OpenAIResponse::OpenAIFileDeleteResponse(data) => {
+                    data.print_response()
                 },
                 openai::OpenAIResponse::OpenAIFileUploadResponse(data) => {
                     data.print_file()

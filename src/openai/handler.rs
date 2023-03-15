@@ -82,6 +82,9 @@ impl OpenAIHandler {
             OpenAIRequest::OpenAIFilesRequest(request) => {
                 self.response = request.to_owned().process_response(response_body);
             },
+            OpenAIRequest::OpenAIFileDeleteRequest(request) => {
+
+            },
             OpenAIRequest::OpenAIFileUploadRequest(request) => {
                 self.response = request.to_owned().process_response(response_body);
             },
@@ -117,6 +120,9 @@ impl OpenAIHandler {
             OpenAIRequest::OpenAIFilesRequest(_) => {
                 endpoint.push_str("/v1/files");
             },
+            OpenAIRequest::OpenAIFileDeleteRequest(request) => {
+                endpoint.push_str("/v1/files/");
+            },
             OpenAIRequest::OpenAIFileUploadRequest(_) => {
                 endpoint.push_str("/v1/files");
             },
@@ -140,8 +146,11 @@ impl OpenAIHandler {
             OpenAIRequest::OpenAIFilesRequest(_) => {
         	    client.get(endpoint).headers(self.clone().headers()).send().await
             },
+            OpenAIRequest::OpenAIFileDeleteRequest(request) => {
+        	    client.delete(format!("{}{}", endpoint, request.filename)).headers(self.clone().headers()).send().await
+            },
             OpenAIRequest::OpenAIFileUploadRequest(request) => {
-                // async open file 
+                // async open file
                 let file = match tokio::fs::File::open(request.file.to_path_buf()).await {
                     Ok(content) => content,
                     Err(error) => {
