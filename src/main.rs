@@ -193,7 +193,7 @@ async fn create_models_request(openai_handler: &mut OpenAIHandler, request_setti
 async fn create_finetune_request(openai_handler: &mut OpenAIHandler, request_settings: cli::CliFineTune, fine_tune_id: String) {
     if request_settings.clone().events().to_owned() {
         openai_handler.set_request(OpenAIRequest::OpenAIFineTuneEventsRequest(OpenAIFineTuneEventsRequest {
-            model_name: fine_tune_id.to_owned(),
+            fine_tune_id: fine_tune_id.to_owned(),
         }));
     } else if request_settings.clone().cancel() {
         openai_handler.set_request(OpenAIRequest::OpenAIFineTuneCancelRequest(OpenAIFineTuneCancelRequest {
@@ -209,11 +209,11 @@ async fn create_finetune_request(openai_handler: &mut OpenAIHandler, request_set
 
 async fn create_completions_request(openai_handler: &mut OpenAIHandler, mut request_settings: cli::CliInterface) {
     openai_handler.set_request(OpenAIRequest::OpenAICompletionsRequest(OpenAICompletionsRequest {
-        model: request_settings.model().to_owned(),
-        prompt: request_settings.prompt().to_owned(),
-        max_tokens: request_settings.max_tokens().to_owned(),
-        temperature: request_settings.temperature().to_owned(),
-        user: request_settings.user().to_owned(),
+        model: request_settings.model(),
+        prompt: request_settings.prompt(),
+        max_tokens: request_settings.max_tokens(),
+        temperature: request_settings.temperature(),
+        user: request_settings.user(),
         logit_bias: request_settings.logit_bias().to_owned(),
         best_of: request_settings.best_of().to_owned(),
         frequency_penalty: request_settings.frequency_penalty().to_owned(),

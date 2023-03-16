@@ -141,7 +141,7 @@ impl OpenAIHandler {
             OpenAIRequest::OpenAIFilesRequest(_) => {
                 endpoint.push_str("/v1/files");
             },
-            OpenAIRequest::OpenAIFileDeleteRequest(request) => {
+            OpenAIRequest::OpenAIFileDeleteRequest(_) => {
                 endpoint.push_str("/v1/files/");
             },
             OpenAIRequest::OpenAIFileUploadRequest(_) => {
@@ -221,7 +221,10 @@ impl OpenAIHandler {
         	    client.post(format!("{}{}/cancel", endpoint, request.fine_tune_id)).headers(self.clone().headers()).send().await
             },
             OpenAIRequest::OpenAIFineTuneEventsRequest(request) => {
-        	    client.get(format!("{}{}/events", endpoint, request.model_name)).headers(self.clone().headers()).send().await
+        	    client.get(format!("{}{}/events", endpoint, request.fine_tune_id)).headers(self.clone().headers()).send().await
+            },
+            OpenAIRequest::OpenAIFineTuneDetailRequest(request) => {
+        	    client.get(format!("{}{}", endpoint, request.fine_tune_id)).headers(self.clone().headers()).send().await
             },
             OpenAIRequest::OpenAIModelsRequest(_) => {
         	    client.get(endpoint).headers(self.clone().headers()).send().await
@@ -231,9 +234,6 @@ impl OpenAIHandler {
             }
             OpenAIRequest::None => {
                 std::process::exit(1)
-            },
-            OpenAIRequest::OpenAIFineTuneDetailRequest(request) => {
-        	    client.get(format!("{}{}", endpoint, request.fine_tune_id)).headers(self.clone().headers()).send().await
             },
         }
     }

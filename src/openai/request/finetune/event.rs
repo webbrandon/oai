@@ -3,7 +3,7 @@ use crate::openai::response::*;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct OpenAIFineTuneEventsRequest {
-    pub model_name: String,
+    pub fine_tune_id: String,
 }
 
 impl OpenAIFineTuneEventsRequest {
