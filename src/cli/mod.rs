@@ -2,9 +2,9 @@ mod models;
 mod files;
 mod finetune;
 
-use models::CliModels;
-use files::CliFiles;
-use finetune::CliFineTune;
+pub use models::CliModels;
+pub use files::CliFiles;
+pub use finetune::CliFineTune;
 
 use structopt::StructOpt;
 use structopt::clap::AppSettings::*;
