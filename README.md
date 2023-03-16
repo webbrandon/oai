@@ -15,25 +15,40 @@ sudo make install
 ## Usage
 To view the interface options anytime use the `-h/--help` flag.
 ```
-chatgbt-buddy [FLAGS] [OPTIONS] [prompt]
+chatgbt-buddy [FLAGS] [OPTIONS] [prompt] [SUBCOMMAND]
 
 FLAGS:
-  -v, --verbose    Verbose mode (-v, -vv, -vvv, etc.)
-  -h, --help       Prints help information
+-v, --verbose    Verbose mode (-v, -vv, -vvv, etc.)
+    --stream
+-e, --echo
+-h, --help       Prints help information
 
 OPTIONS:
-  -m, --model <model>                      ID of the model to use [default: text-davinci-003]
-      --max-tokens <max-tokens>            The maximum number of tokens [default: 2048]
-  -t, --temperature <temperature>          What sampling temperature to use, between 0 and 2 [default: 0.5]
-  -a, --api-auth-token <api-auth-token>    API Authorization Token [env: API_AUTH_TOKEN=]
-  -u, --user <user>                        User ID (default: session username)
+-m, --model <model>                            ID of the model to use [default: text-davinci-003]
+    --max-tokens <max-tokens>                  The maximum number of tokens [default: 2048]
+-t, --temperature <temperature>                What sampling temperature to use, between 0 and 2 [default: 0.5]
+-a, --api-auth-token <api-auth-token>
+        API Authorization Token [env: API_AUTH_TOKEN=]
+
+-u, --user <user>                              User ID (default: session username)
+-s, --suffix <suffix>
+    --top-p <top-p>                             [default: 1]
+-n, --n <n>                                     [default: 1]
+-l, --logprobs <logprobs>
+    --stop <stop>...
+-p, --presence-penalty <presence-penalty>       [default: 0]
+-f, --frequency-penalty <frequency-penalty>     [default: 0]
+-b, --best-of <best-of>                         [default: 1]
+    --logit-bias <logit-bias>
 
 ARGS:
-  <prompt>    Question
+<prompt>    Question
 
 SUBCOMMANDS:
-  models    Print list of usable models
-  files     Print or upload files for account
+models        List of usable models
+files         List, upload or remove files for account
+fine-tunes    List, create, or cancel fine-tune jobs
+audio         Transcribe or translate audio to text
 ```
 
 ### OpenAI Authentication Configuration
