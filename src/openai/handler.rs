@@ -27,6 +27,7 @@ impl OpenAIHandler {
 
     pub fn new_with_token(token: String) -> OpenAIHandler {
         let mut headers = HeaderMap::new();
+        headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
         headers.insert("Authorization", HeaderValue::from_str(&format!("Bearer {}", token)).expect(""));
         OpenAIHandler {
             headers: headers,
@@ -83,12 +84,30 @@ impl OpenAIHandler {
                 self.response = request.to_owned().process_response(response_body);
             },
             OpenAIRequest::OpenAIFileDeleteRequest(request) => {
-
+                self.response = request.to_owned().process_response(response_body);
             },
             OpenAIRequest::OpenAIFileUploadRequest(request) => {
                 self.response = request.to_owned().process_response(response_body);
             },
+            OpenAIRequest::OpenAIFineTunesRequest(request) => {
+                self.response = request.to_owned().process_response(response_body);
+            },
+            OpenAIRequest::OpenAIFineTuneCreateRequest(request) => {
+                self.response = request.to_owned().process_response(response_body);
+            },
+            OpenAIRequest::OpenAIFineTuneCancelRequest(request) => {
+                self.response = request.to_owned().process_response(response_body);
+            },
+            OpenAIRequest::OpenAIFineTuneEventsRequest(request) => {
+                self.response = request.to_owned().process_response(response_body);
+            },
+            OpenAIRequest::OpenAIFineTuneDetailRequest(request) => {
+                self.response = request.to_owned().process_response(response_body);
+            },
             OpenAIRequest::OpenAIModelsRequest(request) => {
+                self.response = request.to_owned().process_response(response_body);
+            },
+            OpenAIRequest::OpenAIModelDeleteRequest(request) => {
                 self.response = request.to_owned().process_response(response_body);
             },
             OpenAIRequest::None => {},
@@ -98,17 +117,19 @@ impl OpenAIHandler {
     }
 
     async fn process_error(&mut self, response: Response) -> Result<OpenAIResponse, Error> {
-        match response.error_for_status() {
-            Ok(error) => {
-                warn!("Request Error: {:#?}", error);
-                debug!("Bad Request Message: {:#?}", error.text().await);
-                Ok(OpenAIResponse::None)
-            },
-            Err(error) => {
-                warn!("Request Error: {:#?}", error);
-                Err(error)
-            }
-        }
+        debug!("Request Error: {:#?}", response.text().await);
+        std::process::exit(1)
+        // match response.error_for_status() {
+        //     Ok(error) => {
+        //         warn!("Request Error: {:#?}", error);
+        //         debug!("Bad Request Message: {:#?}", error.text().await);
+        //         Ok(OpenAIResponse::None)
+        //     },
+        //     Err(error) => {
+        //         warn!("Request Error: {:#?}", error);
+        //         Err(error)
+        //     }
+        // }
     }
 
     pub fn endpoint(&mut self) -> String {
@@ -126,9 +147,27 @@ impl OpenAIHandler {
             OpenAIRequest::OpenAIFileUploadRequest(_) => {
                 endpoint.push_str("/v1/files");
             },
+            OpenAIRequest::OpenAIFineTunesRequest(_) => {
+                endpoint.push_str("/v1/fine-tunes");
+            },
+            OpenAIRequest::OpenAIFineTuneCreateRequest(_) => {
+                endpoint.push_str("/v1/fine-tunes");
+            },
+            OpenAIRequest::OpenAIFineTuneCancelRequest(_) => {
+                endpoint.push_str("/v1/fine-tunes/");
+            },
+            OpenAIRequest::OpenAIFineTuneEventsRequest(_) => {
+                endpoint.push_str("/v1/fine-tunes/");
+            },
+            OpenAIRequest::OpenAIFineTuneDetailRequest(_) => {
+                endpoint.push_str("/v1/fine-tunes/");
+            },
             OpenAIRequest::OpenAIModelsRequest(_) => {
                 endpoint.push_str("/v1/models");
             },
+            OpenAIRequest::OpenAIModelDeleteRequest(_) => {
+                endpoint.push_str("/v1/models/");
+            }
             OpenAIRequest::None => {
 
             },
@@ -141,6 +180,7 @@ impl OpenAIHandler {
 	    let client = reqwest::Client::new();
         match &self.request {
             OpenAIRequest::OpenAICompletionsRequest(request) => {
+                debug!("Request being made with parameters: {:#?}", request);
         	    client.post(endpoint).headers(self.clone().headers()).json(request).send().await
             },
             OpenAIRequest::OpenAIFilesRequest(_) => {
@@ -170,11 +210,30 @@ impl OpenAIHandler {
 
         	    client.post(endpoint).headers(self.clone().headers()).multipart(form).send().await
             },
+            OpenAIRequest::OpenAIFineTunesRequest(_) => {
+        	    client.get(endpoint).headers(self.clone().headers()).send().await
+            },
+            OpenAIRequest::OpenAIFineTuneCreateRequest(request) => {
+                debug!("Request being made with parameters: {:#?}", request);
+        	    client.post(endpoint).headers(self.clone().headers()).json(request).send().await
+            },
+            OpenAIRequest::OpenAIFineTuneCancelRequest(request) => {
+        	    client.post(format!("{}{}/cancel", endpoint, request.fine_tune_id)).headers(self.clone().headers()).send().await
+            },
+            OpenAIRequest::OpenAIFineTuneEventsRequest(request) => {
+        	    client.get(format!("{}{}/events", endpoint, request.model_name)).headers(self.clone().headers()).send().await
+            },
             OpenAIRequest::OpenAIModelsRequest(_) => {
         	    client.get(endpoint).headers(self.clone().headers()).send().await
             },
+            OpenAIRequest::OpenAIModelDeleteRequest(request) => {
+        	    client.delete(format!("{}{}", endpoint, request.model_name)).headers(self.clone().headers()).send().await
+            }
             OpenAIRequest::None => {
                 std::process::exit(1)
+            },
+            OpenAIRequest::OpenAIFineTuneDetailRequest(request) => {
+        	    client.get(format!("{}{}", endpoint, request.fine_tune_id)).headers(self.clone().headers()).send().await
             },
         }
     }

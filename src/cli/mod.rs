@@ -1,8 +1,10 @@
 mod models;
 mod files;
+mod finetune;
 
 use models::CliModels;
 use files::CliFiles;
+use finetune::CliFineTune;
 
 use structopt::StructOpt;
 use structopt::clap::AppSettings::*;
@@ -33,6 +35,40 @@ pub struct CliInterface {
 	/// User ID (default: session username)
 	#[structopt(long = "user", short = "u")]
 	pub user: Option<String>,
+	///
+	#[structopt(long = "suffix", short = "s")]
+    pub suffix: Option<String>,
+	///
+	#[structopt(long = "top-p", default_value = "1")]
+    pub top_p: f32,
+	///
+	#[structopt(long = "n", short = "n", default_value = "1")]
+    pub n: u32,
+	///
+	#[structopt(long = "stream")]
+    pub stream: bool,
+	///
+	#[structopt(long = "logprobs", short = "l")]
+    pub logprobs: Option<u32>,
+	///
+	#[structopt(long = "echo", short = "e")]
+    pub echo: bool,
+	///
+	#[structopt(long = "stop")]
+    pub stop: Option<Vec<String>>,
+	///
+	#[structopt(long = "presence-penalty", short = "p", default_value = "0")]
+    pub presence_penalty: f32,
+	///
+	#[structopt(long = "frequency-penalty", short = "f", default_value = "0")]
+    pub frequency_penalty: f32,
+	///
+	#[structopt(long = "best-of", short = "b", default_value = "1")]
+    pub best_of: u32,
+	///
+	#[structopt(long = "logit-bias")]
+    pub logit_bias: Option<String>,
+
 	#[structopt(subcommand)]
 	pub args: Option<CliRequest>,
 }
@@ -42,12 +78,15 @@ pub struct CliInterface {
 	global_settings = &[DisableVersion, DisableHelpSubcommand, DeriveDisplayOrder, VersionlessSubcommands],
 )]
 pub enum CliRequest {
-	/// Print list of usable models
+	/// List of usable models
 	#[structopt(name = "models")]
 	CliModels(CliModels),
-	/// Print or upload files for account
+	/// List, upload or remove files for account
 	#[structopt(name = "files")]
 	CliFiles(CliFiles),
+	/// List, create, or cancel fine-tune jobs
+	#[structopt(name = "fine-tunes")]
+	CliFineTune(CliFineTune),
 }
 
 impl CliRequest {
@@ -121,4 +160,59 @@ impl CliInterface {
 			}
 		}
 	}
+
+    /// Get a reference to the cli interface's suffix.
+    pub fn suffix(&self) -> &Option<String> {
+        &self.suffix
+    }
+
+    /// Get a reference to the cli interface's top p.
+    pub fn top_p(&self) -> &f32 {
+        &self.top_p
+    }
+
+    /// Get a reference to the cli interface's n.
+    pub fn n(&self) -> &u32 {
+        &self.n
+    }
+
+    /// Get a reference to the cli interface's stream.
+    pub fn stream(&self) -> &bool {
+        &self.stream
+    }
+
+    /// Get a reference to the cli interface's logprobs.
+    pub fn logprobs(&self) -> &Option<u32> {
+        &self.logprobs
+    }
+
+    /// Get a reference to the cli interface's echo.
+    pub fn echo(&self) -> &bool {
+        &self.echo
+    }
+
+    /// Get a reference to the cli interface's stop.
+    pub fn stop(&self) -> &Option<Vec<String>> {
+        &self.stop
+    }
+
+    /// Get a reference to the cli interface's presence penalty.
+    pub fn presence_penalty(&self) -> &f32 {
+        &self.presence_penalty
+    }
+
+    /// Get a reference to the cli interface's frequency penalty.
+    pub fn frequency_penalty(&self) -> &f32 {
+        &self.frequency_penalty
+    }
+
+    /// Get a reference to the cli interface's best of.
+    pub fn best_of(&self) -> &u32 {
+        &self.best_of
+    }
+
+    /// Get a reference to the cli interface's logit bias.
+    pub fn logit_bias(&self) -> &Option<String> {
+        &self.logit_bias
+    }
 }

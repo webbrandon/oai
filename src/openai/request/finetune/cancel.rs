@@ -2,14 +2,14 @@ use serde::{Deserialize, Serialize};
 use crate::openai::response::*;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct OpenAIFileDeleteRequest {
-    pub filename: String,
+pub struct OpenAIFineTuneCancelRequest {
+    pub fine_tune_id: String,
 }
 
-impl OpenAIFileDeleteRequest {
+impl OpenAIFineTuneCancelRequest {
     pub fn process_response(self, response_body: String) -> OpenAIResponse {
-        debug!("Formatting response to type OpenAIFileDeleteResponse: {:#?}", response_body);
-        let response: OpenAIFileDeleteResponse = match serde_json::from_str(&response_body) {
+        debug!("Formatting response to type OpenAIFineTuneCancelResponse: {:#?}", response_body);
+        let response: OpenAIFineTuneCancelResponse = match serde_json::from_str(&response_body) {
             Ok(res) => {
                 res
             },
@@ -18,6 +18,6 @@ impl OpenAIFileDeleteRequest {
                 std::process::exit(1)
             }
         };
-        OpenAIResponse::OpenAIFileDeleteResponse(response)
+        OpenAIResponse::OpenAIFineTuneCancelResponse(response)
     }
 }
