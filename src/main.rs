@@ -21,7 +21,13 @@ async fn main() -> Result<(), Error> {
     let cli_options = CliInterface::from_args();
     init_log(&cli_options.verbose);
 
-    let mut openai_handler = OpenAIHandler::new_with_token(cli_options.clone().api_auth_token());
+    let openai_handler = OpenAIHandler::new_with_token(cli_options.clone().api_auth_token());
+    process_cli_request(openai_handler, cli_options).await;
+
+    Ok(())
+}
+
+async fn process_cli_request(mut openai_handler: OpenAIHandler, cli_options: CliInterface) {
     match cli_options.args {
         Some(subcommand) => {
             match subcommand {
@@ -40,8 +46,6 @@ async fn main() -> Result<(), Error> {
             create_completions_request(&mut openai_handler, cli_options.to_owned()).await
         },
     }
-
-    Ok(())
 }
 
 async fn process_response(openai_handler: &mut OpenAIHandler) {
