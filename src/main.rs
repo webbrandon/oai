@@ -32,13 +32,42 @@ async fn process_cli_request(mut openai_handler: OpenAIHandler, cli_options: Cli
         Some(subcommand) => {
             match subcommand {
                 CliRequest::CliFiles(request_settings) => {
+                    debug!("CliFiles request made");
                     create_file_request(openai_handler, request_settings).await
                 },
                 CliRequest::CliModels(request_settings) => {
+                    debug!("CliModels request made");
                     create_models_request(&mut openai_handler, request_settings).await
                 },
                 CliRequest::CliFineTune(request_settings) => {
+                    debug!("CliFineTune request made");
                     create_finetunes_request(openai_handler, request_settings).await
+                },
+                CliRequest::CliAudio(request_settings) => {
+                    debug!("CliAudio request made");
+                    match request_settings.transcriptions() {
+                        true => {
+                            openai_handler.set_request(OpenAIRequest::OpenAIAudioTranslationRequest(OpenAIAudioTranslationRequest {
+                                temperature: request_settings.temperature().to_owned(),
+                                response_format: request_settings.response_format().to_owned(),
+                                prompt: request_settings.prompt().to_owned(),
+                                model: request_settings.model().to_owned(),
+                                file: request_settings.file().to_owned(),
+                            }));
+                            process_response(&mut openai_handler).await
+                        }
+                        false => {
+                            openai_handler.set_request(OpenAIRequest::OpenAIAudioTranscriptionRequest(OpenAIAudioTranscriptionRequest {
+                                temperature: request_settings.temperature().to_owned(),
+                                response_format: request_settings.response_format().to_owned(),
+                                prompt: request_settings.prompt().to_owned(),
+                                model: request_settings.model().to_owned(),
+                                file: request_settings.file().to_owned(),
+                                language: request_settings.language().to_owned(),
+                            }));
+                            process_response(&mut openai_handler).await
+                        }
+                    }
                 },
             }
         },
@@ -52,6 +81,12 @@ async fn process_response(openai_handler: &mut OpenAIHandler) {
     match openai_handler.process().await {
         Ok(response) => {
             match response {
+                OpenAIResponse::OpenAIAudioTranslationResponse(data) => {
+                    data.print_response()
+                },
+                OpenAIResponse::OpenAIAudioTranscriptionResponse(data) => {
+                    data.print_response()
+                },
                 OpenAIResponse::OpenAICompletionsResponse(data) => {
                     data.print_choices();
                 },

@@ -1,10 +1,12 @@
 mod models;
 mod files;
 mod finetune;
+mod audio;
 
 pub use models::CliModels;
 pub use files::CliFiles;
 pub use finetune::CliFineTune;
+pub use audio::CliAudio;
 
 use structopt::StructOpt;
 use structopt::clap::AppSettings::*;
@@ -87,6 +89,9 @@ pub enum CliRequest {
 	/// List, create, or cancel fine-tune jobs
 	#[structopt(name = "fine-tunes")]
 	CliFineTune(CliFineTune),
+	/// Transcribe or translate audio to text
+	#[structopt(name = "audio")]
+	CliAudio(CliAudio),
 }
 
 impl CliRequest {
