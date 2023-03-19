@@ -1,6 +1,6 @@
 # OpenAI Buddy
 
-This is a simple cli utility to communicate to the [completions api](https://platform.openai.com/docs/api-reference/completions) from OpenAI.  It can help in testing various models with interfaces to api parameters to tweak result.
+This is a simple cli utility to communicate to OpenAI API.  It can help in testing or creating various models.  It provides full feature interfaces access to the completions, edits, audio, and images endpoints.
 
 ## Build
 ```bash
