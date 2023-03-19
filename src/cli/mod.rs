@@ -2,12 +2,16 @@ mod models;
 mod files;
 mod finetune;
 mod audio;
+mod images;
 
 pub use models::CliModels;
 pub use files::CliFiles;
 pub use finetune::CliFineTune;
 pub use audio::CliAudio;
-
+pub use images::CliImage;
+use std::fs;
+use std::net::SocketAddr;
+use std::error::Error;
 use structopt::StructOpt;
 use structopt::clap::AppSettings::*;
 use std::io::{self, BufRead};
@@ -22,6 +26,8 @@ pub struct CliInterface {
 	pub verbose: u8,
 	/// Question
 	pub prompt: Option<String>,
+	/// Instructions how to edit the prompt
+	pub instruction: Option<String>,
 	/// ID of the model to use
 	#[structopt(long = "model", short = "m", default_value = "text-davinci-003")]
 	pub model: String,
@@ -37,37 +43,37 @@ pub struct CliInterface {
 	/// User ID (default: session username)
 	#[structopt(long = "user", short = "u")]
 	pub user: Option<String>,
-	///
+	/// After a completion of inserted text
 	#[structopt(long = "suffix", short = "s")]
     pub suffix: Option<String>,
-	///
+	/// Aalternative to sampling with temperature
 	#[structopt(long = "top-p", default_value = "1")]
     pub top_p: f32,
-	///
+	/// How many completions to generate
 	#[structopt(long = "n", short = "n", default_value = "1")]
     pub n: u32,
-	///
+	/// Stream back partial progress
 	#[structopt(long = "stream")]
     pub stream: bool,
-	///
+	/// Probabilities most likely tokens, as well the chosen tokens
 	#[structopt(long = "logprobs", short = "l")]
     pub logprobs: Option<u32>,
-	///
+	/// Echo back the prompt in addition
 	#[structopt(long = "echo", short = "e")]
     pub echo: bool,
-	///
+	/// Returned text will not contain the stop sequence
 	#[structopt(long = "stop")]
     pub stop: Option<Vec<String>>,
-	///
+	/// Penalize new tokens based on whether they appear in the text so far
 	#[structopt(long = "presence-penalty", short = "p", default_value = "0")]
     pub presence_penalty: f32,
-	///
+	/// Penalize new tokens based on their existing frequency in the text so far
 	#[structopt(long = "frequency-penalty", short = "f", default_value = "0")]
     pub frequency_penalty: f32,
-	///
+	/// Highest log probability per token
 	#[structopt(long = "best-of", short = "b", default_value = "1")]
     pub best_of: u32,
-	///
+	/// Likelihood of specified tokens appearing
 	#[structopt(long = "logit-bias")]
     pub logit_bias: Option<String>,
 
@@ -92,6 +98,9 @@ pub enum CliRequest {
 	/// Transcribe or translate audio to text
 	#[structopt(name = "audio")]
 	CliAudio(CliAudio),
+	/// Generate new, edited or variation images
+	#[structopt(name = "image")]
+	CliImage(CliImage),
 }
 
 impl CliRequest {
@@ -101,11 +110,18 @@ impl CliRequest {
 }
 
 impl CliInterface {
-	pub fn prompt(&mut self) -> String {
+	pub async fn prompt(mut self) -> String {
 		trace!("prompt value request");
-		if self.prompt.is_some() {
+		if self.clone().prompt.is_some() {
 			trace!("prompt value provided");
-			self.prompt.clone().unwrap()
+			match self.clone().prompt_string().await {
+			    Some(prompt_response) => {
+					prompt_response.to_owned()
+				}
+			    None => {
+					self.clone().prompt.unwrap()
+				}
+			}
 		} else {
 			let stdin = io::stdin();
 			let mut input_stream = String::new();
@@ -127,6 +143,29 @@ impl CliInterface {
 				trace!("tell us how you got here");
 				std::process::exit(1)
 			}
+		}
+	}
+	async fn prompt_string(mut self) -> Option<String> {
+		match &self.prompt {
+			Some(prompt) => {
+				let first_char = prompt.chars().nth(0).clone().unwrap();
+				if self.clone().is_file_flag(first_char) {
+					debug!("attempting to open file for context: {}", prompt.clone().replace("@", ""));
+					match fs::read_to_string(prompt.clone().replace("@", "")) {
+						Ok(file_content) => {
+							self.prompt = Some(file_content);
+							self.prompt
+						}
+						Err(err) => {
+							warn!("There was an error opening file: {:#?}", err);
+							self.prompt
+						}
+					}
+				} else {
+					self.prompt
+				}
+			}
+			None => {self.prompt},
 		}
 	}
 
@@ -220,4 +259,37 @@ impl CliInterface {
     pub fn logit_bias(&self) -> &Option<String> {
         &self.logit_bias
     }
+
+    /// Get a reference to the cli interface's instruction.
+    pub async fn instruction(mut self) -> Option<String> {
+		match &self.instruction {
+		    Some(instruction) => {
+				let first_char = instruction.chars().nth(0).clone().unwrap();
+				if self.clone().is_file_flag(first_char) {
+					debug!("attempting to open file for context: {}", instruction.replace("@", ""));
+					match fs::read_to_string(instruction.replace("@", "")) {
+					    Ok(file_content) => {
+							self.instruction = Some(file_content);
+							self.instruction
+						}
+					    Err(err) => {
+							warn!("There was an error opening file: {:#?}", err);
+							self.instruction
+						}
+					}
+				} else {
+					self.instruction
+				}
+			}
+		    None => {self.instruction},
+		}
+    }
+
+	pub fn is_file_flag(mut self, segment: char) -> bool {
+		if segment == '@' {
+			true
+		} else {
+			false
+		}
+	}
 }

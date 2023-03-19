@@ -84,6 +84,9 @@ impl OpenAIHandler {
             OpenAIRequest::OpenAICompletionsRequest(request) => {
                 self.response = request.to_owned().process_response(response_body);
             },
+            OpenAIRequest::OpenAICompletionEditRequest(request) => {
+                self.response = request.to_owned().process_response(response_body);
+            },
             OpenAIRequest::OpenAIFilesRequest(request) => {
                 self.response = request.to_owned().process_response(response_body);
             },
@@ -106,6 +109,15 @@ impl OpenAIHandler {
                 self.response = request.to_owned().process_response(response_body);
             },
             OpenAIRequest::OpenAIFineTuneDetailRequest(request) => {
+                self.response = request.to_owned().process_response(response_body);
+            },
+            OpenAIRequest::OpenAIImagesRequest(request) => {
+                self.response = request.to_owned().process_response(response_body);
+            },
+            OpenAIRequest::OpenAIImageEditRequest(request) => {
+                self.response = request.to_owned().process_response(response_body);
+            },
+            OpenAIRequest::OpenAIImageVariationRequest(request) => {
                 self.response = request.to_owned().process_response(response_body);
             },
             OpenAIRequest::OpenAIModelsRequest(request) => {
@@ -139,8 +151,17 @@ impl OpenAIHandler {
     pub fn endpoint(&mut self) -> String {
         let mut endpoint = String::from("https://api.openai.com");
         match &self.request {
+            OpenAIRequest::OpenAIAudioTranslationRequest(_) => {
+                endpoint.push_str("/v1/audio/translations");
+            }
+            OpenAIRequest::OpenAIAudioTranscriptionRequest(_) => {
+                endpoint.push_str("/v1/audio/transcriptions");
+            },
             OpenAIRequest::OpenAICompletionsRequest(_) => {
                 endpoint.push_str("/v1/completions");
+            },
+            OpenAIRequest::OpenAICompletionEditRequest(_) => {
+                endpoint.push_str("/v1/edits");
             },
             OpenAIRequest::OpenAIFilesRequest(_) => {
                 endpoint.push_str("/v1/files");
@@ -166,6 +187,15 @@ impl OpenAIHandler {
             OpenAIRequest::OpenAIFineTuneDetailRequest(_) => {
                 endpoint.push_str("/v1/fine-tunes/");
             },
+            OpenAIRequest::OpenAIImagesRequest(_) => {
+                endpoint.push_str("/v1/images/generations");
+            },
+            OpenAIRequest::OpenAIImageEditRequest(_) => {
+                endpoint.push_str("/v1/images/edits");
+            },
+            OpenAIRequest::OpenAIImageVariationRequest(_) => {
+                endpoint.push_str("/v1/images/variations");
+            },
             OpenAIRequest::OpenAIModelsRequest(_) => {
                 endpoint.push_str("/v1/models");
             },
@@ -175,12 +205,6 @@ impl OpenAIHandler {
             OpenAIRequest::None => {
 
             },
-            OpenAIRequest::OpenAIAudioTranslationRequest(_) => {
-                endpoint.push_str("/v1/audio/translations");
-            }
-            OpenAIRequest::OpenAIAudioTranscriptionRequest(_) => {
-                endpoint.push_str("/v1/audio/transcriptions");
-            }
         }
         endpoint
     }
@@ -189,70 +213,6 @@ impl OpenAIHandler {
         let endpoint = self.endpoint();
 	    let client = reqwest::Client::new();
         match &self.request {
-            OpenAIRequest::OpenAICompletionsRequest(request) => {
-                debug!("Request being made with parameters: {:#?}", request);
-                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
-        	    client.post(endpoint).headers(self.clone().headers()).json(request).send().await
-            },
-            OpenAIRequest::OpenAIFilesRequest(_) => {
-                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
-        	    client.get(endpoint).headers(self.clone().headers()).send().await
-            },
-            OpenAIRequest::OpenAIFileDeleteRequest(request) => {
-                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
-        	    client.delete(format!("{}{}", endpoint, request.filename)).headers(self.clone().headers()).send().await
-            },
-            OpenAIRequest::OpenAIFileUploadRequest(request) => {
-                let file = match tokio::fs::File::open(request.file.to_path_buf()).await {
-                    Ok(content) => content,
-                    Err(error) => {
-                        warn!("Error opening file: {:#?}", error);
-                        std::process::exit(1)
-                    }
-                };
-                let mut reader = BufReader::new(file.into_std().await);
-                let mut buffer = Vec::new();
-                reader.read_to_end(&mut buffer).unwrap();
-
-                let filename = String::from(request.file.file_name().unwrap().to_str().unwrap());
-                let purpose = String::from(&request.purpose);
-                let part = Part::bytes(buffer).file_name(filename);
-                let form = reqwest::multipart::Form::new().part("file", part.into()).text("purpose", purpose);
-
-        	    client.post(endpoint).headers(self.clone().headers()).multipart(form).send().await
-            },
-            OpenAIRequest::OpenAIFineTunesRequest(_) => {
-                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
-        	    client.get(endpoint).headers(self.clone().headers()).send().await
-            },
-            OpenAIRequest::OpenAIFineTuneCreateRequest(request) => {
-                debug!("Request being made with parameters: {:#?}", request);
-                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
-        	    client.post(endpoint).headers(self.clone().headers()).json(request).send().await
-            },
-            OpenAIRequest::OpenAIFineTuneCancelRequest(request) => {
-                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
-        	    client.post(format!("{}{}/cancel", endpoint, request.fine_tune_id)).headers(self.clone().headers()).send().await
-            },
-            OpenAIRequest::OpenAIFineTuneEventsRequest(request) => {
-                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
-        	    client.get(format!("{}{}/events", endpoint, request.fine_tune_id)).headers(self.clone().headers()).send().await
-            },
-            OpenAIRequest::OpenAIFineTuneDetailRequest(request) => {
-                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
-        	    client.get(format!("{}{}", endpoint, request.fine_tune_id)).headers(self.clone().headers()).send().await
-            },
-            OpenAIRequest::OpenAIModelsRequest(_) => {
-                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
-        	    client.get(endpoint).headers(self.clone().headers()).send().await
-            },
-            OpenAIRequest::OpenAIModelDeleteRequest(request) => {
-                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
-        	    client.delete(format!("{}{}", endpoint, request.model_name)).headers(self.clone().headers()).send().await
-            }
-            OpenAIRequest::None => {
-                std::process::exit(1)
-            },
             OpenAIRequest::OpenAIAudioTranslationRequest(request) => {
                 let file = match tokio::fs::File::open(request.file.to_path_buf()).await {
                     Ok(content) => content,
@@ -314,6 +274,162 @@ impl OpenAIHandler {
                 form = form.text("temperature", request.temperature.to_owned().to_string());
 
         	    client.post(endpoint).headers(self.clone().headers()).multipart(form).send().await
+            },
+            OpenAIRequest::OpenAICompletionsRequest(request) => {
+                debug!("Request being made with parameters: {:#?}", request);
+                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
+        	    client.post(endpoint).headers(self.clone().headers()).json(request).send().await
+            },
+            OpenAIRequest::OpenAICompletionEditRequest(request) => {
+                debug!("Request being made with parameters: {:#?}", request);
+                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
+        	    client.post(endpoint).headers(self.clone().headers()).json(request).send().await
+            },
+            OpenAIRequest::OpenAIFilesRequest(_) => {
+                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
+        	    client.get(endpoint).headers(self.clone().headers()).send().await
+            },
+            OpenAIRequest::OpenAIFileDeleteRequest(request) => {
+                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
+        	    client.delete(format!("{}{}", endpoint, request.filename)).headers(self.clone().headers()).send().await
+            },
+            OpenAIRequest::OpenAIFileUploadRequest(request) => {
+                let file = match tokio::fs::File::open(request.file.to_path_buf()).await {
+                    Ok(content) => content,
+                    Err(error) => {
+                        warn!("Error opening file: {:#?}", error);
+                        std::process::exit(1)
+                    }
+                };
+                let mut reader = BufReader::new(file.into_std().await);
+                let mut buffer = Vec::new();
+                reader.read_to_end(&mut buffer).unwrap();
+
+                let filename = String::from(request.file.file_name().unwrap().to_str().unwrap());
+                let purpose = String::from(&request.purpose);
+                let part = Part::bytes(buffer).file_name(filename);
+                let form = reqwest::multipart::Form::new().part("file", part.into()).text("purpose", purpose);
+
+        	    client.post(endpoint).headers(self.clone().headers()).multipart(form).send().await
+            },
+            OpenAIRequest::OpenAIFineTunesRequest(_) => {
+                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
+        	    client.get(endpoint).headers(self.clone().headers()).send().await
+            },
+            OpenAIRequest::OpenAIFineTuneCreateRequest(request) => {
+                debug!("Request being made with parameters: {:#?}", request);
+                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
+        	    client.post(endpoint).headers(self.clone().headers()).json(request).send().await
+            },
+            OpenAIRequest::OpenAIFineTuneCancelRequest(request) => {
+                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
+        	    client.post(format!("{}{}/cancel", endpoint, request.fine_tune_id)).headers(self.clone().headers()).send().await
+            },
+            OpenAIRequest::OpenAIFineTuneEventsRequest(request) => {
+                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
+        	    client.get(format!("{}{}/events", endpoint, request.fine_tune_id)).headers(self.clone().headers()).send().await
+            },
+            OpenAIRequest::OpenAIFineTuneDetailRequest(request) => {
+                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
+        	    client.get(format!("{}{}", endpoint, request.fine_tune_id)).headers(self.clone().headers()).send().await
+            },
+            OpenAIRequest::OpenAIImagesRequest(request) => {
+                debug!("Request being made with parameters: {:#?}", request);
+                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
+        	    client.post(endpoint).headers(self.clone().headers()).json(request).send().await
+            },
+            OpenAIRequest::OpenAIImageEditRequest(request) => {
+                let image_file = request.image.as_ref().unwrap();
+                let img = match tokio::fs::File::open(&image_file).await {
+                    Ok(content) => content,
+                    Err(error) => {
+                        warn!("Error opening file: {:#?}", error);
+                        std::process::exit(1)
+                    }
+                };
+                let user = request.user.as_ref().unwrap();
+                let mut img_reader = BufReader::new(img.into_std().await);
+                let mut img_src = Vec::new();
+                img_reader.read_to_end(&mut img_src).unwrap();
+
+                match &request.mask {
+                    Some(mask_file) => {
+                            let img_filename = String::from(image_file.file_name().unwrap().to_str().unwrap());
+                            let img_part = Part::bytes(img_src).file_name(img_filename);
+
+                            let mask = match tokio::fs::File::open(&mask_file).await {
+                                Ok(content) => content,
+                                Err(error) => {
+                                    warn!("Error opening file: {:#?}", error);
+                                    std::process::exit(1)
+                                }
+                            };
+                            let mut mask_reader = BufReader::new(mask.into_std().await);
+                            let mut mask_src = Vec::new();
+                            mask_reader.read_to_end(&mut mask_src).unwrap();
+                            let mask_filename = String::from(mask_file.file_name().unwrap().to_str().unwrap());
+                            let mask_part = Part::bytes(mask_src).file_name(mask_filename);
+                            let form = reqwest::multipart::Form::new()
+                                .part("image", img_part.into())
+                                .part("mask", mask_part.into());
+                            let form = form.text("n", request.clone().n.to_string())
+                                .text("size", request.clone().size)
+                                .text("response_format", request.clone().response_format)
+                                .text("prompt", request.clone().prompt.unwrap())
+                                .text("user", user.clone());
+
+                    	    client.post(endpoint).headers(self.clone().headers()).multipart(form).send().await
+                    }
+                    None => {
+                        let img_filename = String::from(image_file.file_name().unwrap().to_str().unwrap());
+                        let img_part = Part::bytes(img_src).file_name(img_filename);
+
+                        let form = reqwest::multipart::Form::new().part("image", img_part.into());
+                        let form = form.text("n", request.clone().n.to_string())
+                            .text("size", request.clone().size)
+                            .text("response_format", request.clone().response_format)
+                            .text("prompt", request.clone().prompt.unwrap())
+                            .text("user", user.clone());
+
+                        client.post(endpoint).headers(self.clone().headers()).multipart(form).send().await
+                    }
+                }
+            },
+            OpenAIRequest::OpenAIImageVariationRequest(request) => {
+                let user = request.user.as_ref().unwrap();
+                let image_file = request.image.as_ref().unwrap();
+                let img = match tokio::fs::File::open(&image_file).await {
+                    Ok(content) => content,
+                    Err(error) => {
+                        warn!("Error opening file: {:#?}", error);
+                        std::process::exit(1)
+                    }
+                };
+                let mut img_reader = BufReader::new(img.into_std().await);
+                let mut img_src = Vec::new();
+                img_reader.read_to_end(&mut img_src).unwrap();
+
+                let img_filename = String::from(image_file.file_name().unwrap().to_str().unwrap());
+                let img_part = Part::bytes(img_src).file_name(img_filename);
+
+                let form = reqwest::multipart::Form::new().part("image", img_part.into());
+                let form = form.text("n", request.clone().n.to_string())
+                    .text("size", request.clone().size)
+                    .text("response_format", request.clone().response_format)
+                    .text("user", user.clone());
+
+                client.post(endpoint).headers(self.clone().headers()).multipart(form).send().await
+            },
+            OpenAIRequest::OpenAIModelsRequest(_) => {
+                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
+        	    client.get(endpoint).headers(self.clone().headers()).send().await
+            },
+            OpenAIRequest::OpenAIModelDeleteRequest(request) => {
+                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
+        	    client.delete(format!("{}{}", endpoint, request.model_name)).headers(self.clone().headers()).send().await
+            }
+            OpenAIRequest::None => {
+                std::process::exit(1)
             },
         }
     }

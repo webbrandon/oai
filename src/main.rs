@@ -69,6 +69,69 @@ async fn process_cli_request(mut openai_handler: OpenAIHandler, cli_options: Cli
                         }
                     }
                 },
+                CliRequest::CliImage(request_settings) => {
+                    debug!("CliImage request made");
+                    match &request_settings.image() {
+                        Some(img) => {
+                            match &request_settings.mask() {
+                                Some(mask) => {
+                                    openai_handler.set_request(OpenAIRequest::OpenAIImageEditRequest(OpenAIImageEditRequest {
+                                        user: Some(request_settings.to_owned().user().to_owned()),
+                                        response_format: request_settings.response_format().to_owned(),
+                                        size: request_settings.size().to_owned(),
+                                        n: request_settings.n().to_owned(),
+                                        image: Some(img.to_owned()),
+                                        mask: Some(mask.to_owned()),
+                                        prompt: Some(request_settings.prompt().to_owned()),
+                                    }));
+                                }
+                                None => {
+                                    match &request_settings.is_prompt() {
+                                        true => {
+                                            openai_handler.set_request(OpenAIRequest::OpenAIImageEditRequest(OpenAIImageEditRequest {
+                                                user: Some(request_settings.to_owned().user().to_owned()),
+                                                response_format: request_settings.response_format().to_owned(),
+                                                size: request_settings.size().to_owned(),
+                                                n: request_settings.n().to_owned(),
+                                                image: Some(img.to_owned()),
+                                                mask: None,
+                                                prompt: Some(request_settings.prompt().to_owned()),
+                                            }));
+                                        }
+                                        false => {
+                                            openai_handler.set_request(OpenAIRequest::OpenAIImageVariationRequest(OpenAIImageVariationRequest {
+                                                user: Some(request_settings.to_owned().user().to_owned()),
+                                                response_format: request_settings.response_format().to_owned(),
+                                                size: request_settings.size().to_owned(),
+                                                n: request_settings.n().to_owned(),
+                                                image: Some(img.to_owned()),
+                                            }));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        None => {
+                            match &request_settings.is_prompt() {
+                                true => {
+                                    openai_handler.set_request(OpenAIRequest::OpenAIImagesRequest(OpenAIImagesRequest {
+                                        user: Some(request_settings.to_owned().user().to_owned()),
+                                        response_format: request_settings.response_format().to_owned(),
+                                        size: request_settings.size().to_owned(),
+                                        n: request_settings.n().to_owned(),
+                                        prompt: Some(request_settings.prompt().to_owned()),
+                                    }));
+                                }
+                                false => {
+                                    error!("Malformed request parameters!");
+                                    std::process::exit(1)
+                                }
+                            }
+                        }
+                    }
+
+                    process_image_response(&mut openai_handler, request_settings).await
+                }
             }
         },
         None => {
@@ -88,6 +151,9 @@ async fn process_response(openai_handler: &mut OpenAIHandler) {
                     data.print_response()
                 },
                 OpenAIResponse::OpenAICompletionsResponse(data) => {
+                    data.print_choices();
+                },
+                OpenAIResponse::OpenAICompletionEditResponse(data) => {
                     data.print_choices();
                 },
                 OpenAIResponse::OpenAIFilesResponse(data) => {
@@ -114,6 +180,15 @@ async fn process_response(openai_handler: &mut OpenAIHandler) {
                 OpenAIResponse::OpenAIFineTuneDetailResponse(data) => {
                     data.print_details()
                 },
+                OpenAIResponse::OpenAIImagesResponse(data) => {
+
+                },
+                OpenAIResponse::OpenAIImageEditResponse(data) => {
+
+                },
+                OpenAIResponse::OpenAIImageVariationResponse(data) => {
+
+                },
                 OpenAIResponse::OpenAIModelsResponse(data) => {
                     data.print_models()
                 },
@@ -126,6 +201,72 @@ async fn process_response(openai_handler: &mut OpenAIHandler) {
         Err(_) => {}
     }
 }
+
+async fn process_image_response(openai_handler: &mut OpenAIHandler, cli_options: cli::CliImage) {
+    match openai_handler.process().await {
+        Ok(response) => {
+            match response {
+                OpenAIResponse::OpenAIAudioTranslationResponse(data) => {
+                    data.print_response()
+                },
+                OpenAIResponse::OpenAIAudioTranscriptionResponse(data) => {
+                    data.print_response()
+                },
+                OpenAIResponse::OpenAICompletionsResponse(data) => {
+                    data.print_choices();
+                },
+                OpenAIResponse::OpenAICompletionEditResponse(data) => {
+                    data.print_choices();
+                },
+                OpenAIResponse::OpenAIFilesResponse(data) => {
+                    data.print_files()
+                },
+                OpenAIResponse::OpenAIFileDeleteResponse(data) => {
+                    data.print_response()
+                },
+                OpenAIResponse::OpenAIFileUploadResponse(data) => {
+                    data.print_file()
+                },
+                OpenAIResponse::OpenAIFineTunesResponse(data) => {
+                    data.print_tunes()
+                },
+                OpenAIResponse::OpenAIFineTuneCreateResponse(data) => {
+                    data.print_tune()
+                },
+                OpenAIResponse::OpenAIFineTuneCancelResponse(data) => {
+                    data.print_response()
+                },
+                OpenAIResponse::OpenAIFineTuneEventsResponse(data) => {
+                    data.print_events()
+                },
+                OpenAIResponse::OpenAIFineTuneDetailResponse(data) => {
+                    data.print_details()
+                },
+                OpenAIResponse::OpenAIImagesResponse(data) => {
+                    data.clone().print_images(cli_options.size().to_owned());
+                    data.save_images(cli_options.size().to_owned(), cli_options.out_path().to_owned())
+                },
+                OpenAIResponse::OpenAIImageEditResponse(data) => {
+                    data.clone().print_images(cli_options.size().to_owned());
+                    data.save_images(cli_options.size().to_owned(), cli_options.out_path().to_owned())
+                },
+                OpenAIResponse::OpenAIImageVariationResponse(data) => {
+                    data.clone().print_images(cli_options.size().to_owned());
+                    data.save_images(cli_options.size().to_owned(), cli_options.out_path().to_owned())
+                },
+                OpenAIResponse::OpenAIModelsResponse(data) => {
+                    data.print_models()
+                },
+                OpenAIResponse::OpenAIModelDeleteResponse(data) => {
+                    data.print_model()
+                },
+                OpenAIResponse::None => {},
+            }
+        }
+        Err(_) => {}
+    }
+}
+
 
 fn init_log(is_verbose: &u8) {
     let environment_override: Option<u8> = match env::var("DEBUG") {
@@ -243,23 +384,37 @@ async fn create_finetune_request(openai_handler: &mut OpenAIHandler, request_set
 }
 
 async fn create_completions_request(openai_handler: &mut OpenAIHandler, mut request_settings: cli::CliInterface) {
-    openai_handler.set_request(OpenAIRequest::OpenAICompletionsRequest(OpenAICompletionsRequest {
-        model: request_settings.model(),
-        prompt: request_settings.prompt(),
-        max_tokens: request_settings.max_tokens(),
-        temperature: request_settings.temperature(),
-        user: request_settings.user(),
-        logit_bias: request_settings.logit_bias().to_owned(),
-        best_of: request_settings.best_of().to_owned(),
-        frequency_penalty: request_settings.frequency_penalty().to_owned(),
-        presence_penalty: request_settings.presence_penalty().to_owned(),
-        stop: request_settings.stop().to_owned(),
-        echo: request_settings.echo().to_owned(),
-        logprobs: request_settings.logprobs().to_owned(),
-        stream: request_settings.stream().to_owned(),
-        n: request_settings.n().to_owned(),
-        top_p: request_settings.top_p().to_owned(),
-        suffix: request_settings.suffix().to_owned(),
-    }));
+    match request_settings.clone().instruction().await {
+        Some(instruction) => {
+            let input = request_settings.clone().prompt().await;
+            openai_handler.set_request(OpenAIRequest::OpenAICompletionEditRequest(OpenAICompletionEditRequest {
+                model: request_settings.model(),
+                input: input,
+                instruction: instruction.to_owned(),
+                temperature: request_settings.temperature(),
+                n: request_settings.n().to_owned(),
+                top_p: request_settings.top_p().to_owned(),
+            }));}
+        None => {
+            openai_handler.set_request(OpenAIRequest::OpenAICompletionsRequest(OpenAICompletionsRequest {
+                model: request_settings.model(),
+                prompt: request_settings.clone().prompt().await,
+                max_tokens: request_settings.max_tokens(),
+                temperature: request_settings.temperature(),
+                user: request_settings.user(),
+                logit_bias: request_settings.logit_bias().to_owned(),
+                best_of: request_settings.best_of().to_owned(),
+                frequency_penalty: request_settings.frequency_penalty().to_owned(),
+                presence_penalty: request_settings.presence_penalty().to_owned(),
+                stop: request_settings.stop().to_owned(),
+                echo: request_settings.echo().to_owned(),
+                logprobs: request_settings.logprobs().to_owned(),
+                stream: request_settings.stream().to_owned(),
+                n: request_settings.n().to_owned(),
+                top_p: request_settings.top_p().to_owned(),
+                suffix: request_settings.suffix().to_owned(),
+            }));
+        }
+    }
     process_response(openai_handler).await
 }

@@ -21,9 +21,9 @@ javascript-code-review-example:
 rust-code-improvement-example:
 	@echo "Example -----------------------------------------------------------------------"
 	@echo "Please give a coded modification with a generic in the following Rust module:"
-	@cat examples/test.rs
+	@cat examples/test
 	@echo "Response ----------------------------------------------------------------------"
-	@{ echo "Please give a coded modification with a generic in the following Rust module:"; cat examples/test.rs; } | chatgbt-buddy
+	@{ echo "Please give a coded modification with a generic in the following Rust module:"; cat examples/test; } | chatgbt-buddy
 	@echo "\n\n"
 
 conversation-summary-example:
