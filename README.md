@@ -15,40 +15,44 @@ sudo make install
 ## Usage
 To view the interface options anytime use the `-h/--help` flag.
 ```
-oai [FLAGS] [OPTIONS] [prompt] [SUBCOMMAND]
+oai [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
 
 FLAGS:
 -v, --verbose    Verbose mode (-v, -vv, -vvv, etc.)
-    --stream
--e, --echo
+    --stream     Stream back partial progress
+-e, --echo       Echo back the prompt in addition
 -h, --help       Prints help information
 
 OPTIONS:
 -m, --model <model>                            ID of the model to use [default: text-davinci-003]
     --max-tokens <max-tokens>                  The maximum number of tokens [default: 2048]
 -t, --temperature <temperature>                What sampling temperature to use, between 0 and 2 [default: 0.5]
--a, --api-auth-token <api-auth-token>
-        API Authorization Token [env: API_AUTH_TOKEN=]
-
+-a, --api-auth-token <api-auth-token>          API Authorization Token [env: API_AUTH_TOKEN]
 -u, --user <user>                              User ID (default: session username)
--s, --suffix <suffix>
-    --top-p <top-p>                             [default: 1]
--n, --n <n>                                     [default: 1]
--l, --logprobs <logprobs>
-    --stop <stop>...
--p, --presence-penalty <presence-penalty>       [default: 0]
--f, --frequency-penalty <frequency-penalty>     [default: 0]
--b, --best-of <best-of>                         [default: 1]
-    --logit-bias <logit-bias>
+-s, --suffix <suffix>                          After a completion of inserted text
+    --top-p <top-p>                            Alternative to sampling with temperature [default: 1]
+-n, --n <n>                                    How many completions to generate [default: 1]
+-l, --logprobs <logprobs>                      Probabilities most likely tokens, as well the chosen tokens
+    --stop <stop>...                           Returned text will not contain the stop sequence
+-p, --presence-penalty <presence-penalty>
+        Penalize new tokens based on whether they appear in the text so far [default: 0]
+
+-f, --frequency-penalty <frequency-penalty>
+        Penalize new tokens based on their existing frequency in the text so far [default: 0]
+
+-b, --best-of <best-of>                        Highest log probability per token [default: 1]
+    --logit-bias <logit-bias>                  Likelihood of specified tokens appearing
 
 ARGS:
-<prompt>    Question
+<prompt>         Question
+<instruction>    Instructions how to edit the prompt
 
 SUBCOMMANDS:
 models        List of usable models
 files         List, upload or remove files for account
 fine-tunes    List, create, or cancel fine-tune jobs
 audio         Transcribe or translate audio to text
+image         Generate new, edited or variation images
 ```
 
 ### OpenAI Authentication Configuration

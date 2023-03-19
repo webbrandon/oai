@@ -44,7 +44,7 @@ pub struct CliInterface {
 	/// After a completion of inserted text
 	#[structopt(long = "suffix", short = "s")]
     pub suffix: Option<String>,
-	/// Aalternative to sampling with temperature
+	/// Alternative to sampling with temperature
 	#[structopt(long = "top-p", default_value = "1")]
     pub top_p: f32,
 	/// How many completions to generate
