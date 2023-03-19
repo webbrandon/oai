@@ -21,4 +21,4 @@
 - [x] use tokio: :main to run the future in try!()
 - [x] use StructOpt for parsing command line arguments
 
-Generated using 'chatgbt-buddy' given examples/todo-md.md as premise to write code improvement TODO list.
+Generated using 'oai' given examples/todo-md.md as premise to write code improvement TODO list.

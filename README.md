@@ -1,4 +1,4 @@
-# ChatGBT Buddy
+# OpenAI Buddy
 
 This is a simple cli utility to communicate to the [completions api](https://platform.openai.com/docs/api-reference/completions) from OpenAI.  It can help in testing various models with interfaces to api parameters to tweak result.
 
@@ -15,7 +15,7 @@ sudo make install
 ## Usage
 To view the interface options anytime use the `-h/--help` flag.
 ```
-chatgbt-buddy [FLAGS] [OPTIONS] [prompt] [SUBCOMMAND]
+oai [FLAGS] [OPTIONS] [prompt] [SUBCOMMAND]
 
 FLAGS:
 -v, --verbose    Verbose mode (-v, -vv, -vvv, etc.)
@@ -63,17 +63,17 @@ export API_AUTH_TOKEN="<Your Token Here>"
 
 **Configure at runtime w/ flag:**
 ```bash
-chatgbt-buddy --api-auth-token "<Your Token Here>" "My question?"
+oai --api-auth-token "<Your Token Here>" "My question?"
 ```
 
 ## Examples
 Examples are provided in the Makefile instructions. They can be triggered using `make examples`. The following example commands will be ran:
 ```bash
-{ echo "Please review the code and tell me if there are mistakes:"; cat examples/index.js; } | chatgbt-buddy
-{ echo "Please give a coded modification with a generic in the following Rust module:"; cat examples/test.rs; } | chatgbt-buddy
-{ echo "Please give me a summary of the following conversation:"; cat examples/convo.txt; } | chatgbt-buddy
-chatgbt-buddy -t 1.2 "Write an HTML component with shadow DOM that ingest a style object and data object to create a button that displays a modal with data and allows the user to escape modal with the keyboards to escape key or exit button." > examples/button.html
-chatgbt-buddy "Do you plan on becoming our overlord and supreme ruler?"
+{ echo "Please review the code and tell me if there are mistakes:"; cat examples/index.js; } | oai
+{ echo "Please give a coded modification with a generic in the following Rust module:"; cat examples/test.rs; } | oai
+{ echo "Please give me a summary of the following conversation:"; cat examples/convo.txt; } | oai
+oai -t 1.2 "Write an HTML component with shadow DOM that ingest a style object and data object to create a button that displays a modal with data and allows the user to escape modal with the keyboards to escape key or exit button." > examples/button.html
+oai "Do you plan on becoming our overlord and supreme ruler?"
 ```
 
 ---

@@ -10,16 +10,14 @@ pub use finetune::CliFineTune;
 pub use audio::CliAudio;
 pub use images::CliImage;
 use std::fs;
-use std::net::SocketAddr;
-use std::error::Error;
 use structopt::StructOpt;
 use structopt::clap::AppSettings::*;
 use std::io::{self, BufRead};
 use crate::cmdln;
 
 #[derive(Debug, StructOpt, Clone, Default)]
-#[structopt(global_settings = &[DisableVersion, DisableHelpSubcommand, DeriveDisplayOrder, VersionlessSubcommands],verbatim_doc_comment)]
-/// ChatGBT CLI Buddy
+#[structopt(global_settings = &[DisableVersion, DisableHelpSubcommand, DeriveDisplayOrder, VersionlessSubcommands], name = "", no_version, verbatim_doc_comment)]
+/// OpenAI Buddy
 pub struct CliInterface {
 	/// Verbose mode (-v, -vv, -vvv, etc.)
 	#[structopt(short, long, parse(from_occurrences))]
@@ -38,7 +36,7 @@ pub struct CliInterface {
 	#[structopt(long = "temperature", short = "t", default_value = "0.5")]
 	pub temperature: f32,
 	/// API Authorization Token
-	#[structopt(long = "api-auth-token", short = "a", env)]
+	#[structopt(long = "api-auth-token", short = "a", env, hide_env_values = true)]
 	pub api_auth_token: Option<String>,
 	/// User ID (default: session username)
 	#[structopt(long = "user", short = "u")]
@@ -83,6 +81,7 @@ pub struct CliInterface {
 
 #[derive(Debug, StructOpt, Clone)]
 #[structopt(
+	name = "", no_version,
 	global_settings = &[DisableVersion, DisableHelpSubcommand, DeriveDisplayOrder, VersionlessSubcommands],
 )]
 pub enum CliRequest {
@@ -136,7 +135,7 @@ impl CliInterface {
 				let mut handler = cmdln::CommandLineHandler::new();
 				handler.set_exit_on_error(true);
 
-				let output = handler.run_cmd("chatgbt-buddy -h");
+				let output = handler.run_cmd("oai -h");
 				println!("{}",&output);
 				std::process::exit(1)
 			} else {

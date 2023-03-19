@@ -1,5 +1,5 @@
 [package]
-name = "chatgbt-buddy"
+name = "oai"
 version = "1.0.0"
 edition = "2021"
 description = "Talk to Chatgbt on the CLI"
