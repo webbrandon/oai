@@ -8,7 +8,7 @@ install:
 	@sudo cp target/release/oai /usr/local/bin/
 	@echo "Install Complete"
 
-examples: conversation-summary-example javascript-code-review-example rust-code-improvement-example create-html-component-example ask-intention-example
+examples: conversation-summary-example javascript-code-review-example rust-code-improvement-example create-html-component-example ask-intention-example create-image-example edit-image-example
 
 javascript-code-review-example:
 	@echo "Example -----------------------------------------------------------------------"
@@ -48,3 +48,15 @@ ask-intention-example:
 	@echo "Response ----------------------------------------------------------------------"
 	@oai "Do you plan on becoming our overlord and supreme ruler?"
 	@echo "\n\n"
+
+create-image-example:
+	@echo "Example -----------------------------------------------------------------------"
+	@echo "Hand drawn rose on mountain top with the sun beaming down on it done with pencil only."
+	@echo "Response ----------------------------------------------------------------------"
+	@oai image --save ~/.openai "Hand drawn rose on mountain top with the sun beaming down on it done with pencil only."
+
+edit-image-example:
+	@echo "Example -----------------------------------------------------------------------"
+	@echo "Create a galatic adventure in the background."
+	@echo "Response ----------------------------------------------------------------------"
+	@oai image --save ~/.openai -i examples/output.png -m examples/output_mask.png "Create a galatic adventure in the background."
