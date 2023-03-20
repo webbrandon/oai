@@ -244,15 +244,84 @@ async fn process_image_response(openai_handler: &mut OpenAIHandler, cli_options:
                 },
                 OpenAIResponse::OpenAIImagesResponse(data) => {
                     data.clone().print_images(cli_options.size().to_owned());
-                    data.save_images(cli_options.size().to_owned(), cli_options.out_path().to_owned())
+                    match &openai_handler.request {
+                        OpenAIRequest::OpenAIAudioTranslationRequest(_) => {}
+                        OpenAIRequest::OpenAIAudioTranscriptionRequest(_) => {}
+                        OpenAIRequest::OpenAICompletionsRequest(_) => {}
+                        OpenAIRequest::OpenAICompletionEditRequest(_) => {}
+                        OpenAIRequest::OpenAIFilesRequest(_) => {}
+                        OpenAIRequest::OpenAIFileDeleteRequest(_) => {}
+                        OpenAIRequest::OpenAIFileUploadRequest(_) => {}
+                        OpenAIRequest::OpenAIFineTunesRequest(_) => {}
+                        OpenAIRequest::OpenAIFineTuneCreateRequest(_) => {}
+                        OpenAIRequest::OpenAIFineTuneCancelRequest(_) => {}
+                        OpenAIRequest::OpenAIFineTuneDetailRequest(_) => {}
+                        OpenAIRequest::OpenAIFineTuneEventsRequest(_) => {}
+                        OpenAIRequest::OpenAIImagesRequest(req) => {
+                            if req.response_format == "b64_json" {
+                                data.save_images(cli_options.size().to_owned(), cli_options.out_path().to_owned())
+                            }
+                        }
+                        OpenAIRequest::OpenAIImageEditRequest(_) => {}
+                        OpenAIRequest::OpenAIImageVariationRequest(_) => {}
+                        OpenAIRequest::OpenAIModelsRequest(_) => {}
+                        OpenAIRequest::OpenAIModelDeleteRequest(_) => {}
+                        OpenAIRequest::None => {}
+                    }
                 },
                 OpenAIResponse::OpenAIImageEditResponse(data) => {
                     data.clone().print_images(cli_options.size().to_owned());
-                    data.save_images(cli_options.size().to_owned(), cli_options.out_path().to_owned())
+                    match &openai_handler.request {
+                        OpenAIRequest::OpenAIAudioTranslationRequest(_) => {}
+                        OpenAIRequest::OpenAIAudioTranscriptionRequest(_) => {}
+                        OpenAIRequest::OpenAICompletionsRequest(_) => {}
+                        OpenAIRequest::OpenAICompletionEditRequest(_) => {}
+                        OpenAIRequest::OpenAIFilesRequest(_) => {}
+                        OpenAIRequest::OpenAIFileDeleteRequest(_) => {}
+                        OpenAIRequest::OpenAIFileUploadRequest(_) => {}
+                        OpenAIRequest::OpenAIFineTunesRequest(_) => {}
+                        OpenAIRequest::OpenAIFineTuneCreateRequest(_) => {}
+                        OpenAIRequest::OpenAIFineTuneCancelRequest(_) => {}
+                        OpenAIRequest::OpenAIFineTuneDetailRequest(_) => {}
+                        OpenAIRequest::OpenAIFineTuneEventsRequest(_) => {}
+                        OpenAIRequest::OpenAIImagesRequest(_) => {}
+                        OpenAIRequest::OpenAIImageEditRequest(req) => {
+                            if req.response_format == "b64_json" {
+                                data.save_images(cli_options.size().to_owned(), cli_options.out_path().to_owned())
+                            }
+                        }
+                        OpenAIRequest::OpenAIImageVariationRequest(_) => {}
+                        OpenAIRequest::OpenAIModelsRequest(_) => {}
+                        OpenAIRequest::OpenAIModelDeleteRequest(_) => {}
+                        OpenAIRequest::None => {}
+                    }
                 },
                 OpenAIResponse::OpenAIImageVariationResponse(data) => {
                     data.clone().print_images(cli_options.size().to_owned());
-                    data.save_images(cli_options.size().to_owned(), cli_options.out_path().to_owned())
+                    match &openai_handler.request {
+                        OpenAIRequest::OpenAIAudioTranslationRequest(_) => {}
+                        OpenAIRequest::OpenAIAudioTranscriptionRequest(_) => {}
+                        OpenAIRequest::OpenAICompletionsRequest(_) => {}
+                        OpenAIRequest::OpenAICompletionEditRequest(_) => {}
+                        OpenAIRequest::OpenAIFilesRequest(_) => {}
+                        OpenAIRequest::OpenAIFileDeleteRequest(_) => {}
+                        OpenAIRequest::OpenAIFileUploadRequest(_) => {}
+                        OpenAIRequest::OpenAIFineTunesRequest(_) => {}
+                        OpenAIRequest::OpenAIFineTuneCreateRequest(_) => {}
+                        OpenAIRequest::OpenAIFineTuneCancelRequest(_) => {}
+                        OpenAIRequest::OpenAIFineTuneDetailRequest(_) => {}
+                        OpenAIRequest::OpenAIFineTuneEventsRequest(_) => {}
+                        OpenAIRequest::OpenAIImagesRequest(_) => {}
+                        OpenAIRequest::OpenAIImageEditRequest(_) => {}
+                        OpenAIRequest::OpenAIImageVariationRequest(req) => {
+                            if req.response_format == "b64_json" {
+                                data.save_images(cli_options.size().to_owned(), cli_options.out_path().to_owned())
+                            }
+                        }
+                        OpenAIRequest::OpenAIModelsRequest(_) => {}
+                        OpenAIRequest::OpenAIModelDeleteRequest(_) => {}
+                        OpenAIRequest::None => {}
+                    }
                 },
                 OpenAIResponse::OpenAIModelsResponse(data) => {
                     data.print_models()

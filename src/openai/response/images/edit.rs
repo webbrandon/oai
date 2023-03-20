@@ -30,7 +30,7 @@ impl OpenAIImageEditResponse {
         }
 	}
 
-	pub fn save_images(mut self, size: String, out_path: PathBuf) {
+	pub fn save_images(mut self, size: String, mut out_path: PathBuf) {
 		trace!("save images to {:#?}", out_path.to_string_lossy());
         std::fs::create_dir_all(&out_path).unwrap();
         let out_path = match &out_path.is_file() {
@@ -38,18 +38,16 @@ impl OpenAIImageEditResponse {
             false => {
                 let mut rng = rand::thread_rng();
                 let filename: u16 = rng.gen();
-                match home::home_dir() {
-                    Some(path) => {
-                        path.to_owned().push(format!("{:#?}.png", filename));
-                        path
-                    },
-                    None => {
+                match &out_path.is_dir() {
+                    true => {
+                        out_path.push(format!("{:#?}.png", filename));
+                        out_path
+                    }
+                    false => {
                         let output = format!("{:#?}.png", filename);
                         PathBuf::from(&output)
-                    },
-                };
-                let output = format!("{:#?}.png", filename);
-                PathBuf::from(output)
+                    }
+                }
             },
         };
         let size_range = size.split("x").collect::<Vec<&str>>();
@@ -61,6 +59,7 @@ impl OpenAIImageEditResponse {
 
             match image::load_from_memory_with_format(&decoded_image, image::ImageFormat::Png) {
                 Ok(png) => {
+                    debug!("saving png to: {:#?}", out_path);
                     png.to_rgba16().clone().save(&out_path).unwrap();
                 }
                 Err(error) => {
