@@ -1,0 +1,7 @@
+struct BigBody {
+    text: String,
+}
+
+struct LittleBody {
+    text: String,
+}

@@ -8,7 +8,7 @@ install:
 	@sudo cp target/release/oai /usr/local/bin/
 	@echo "Install Complete"
 
-examples: conversation-summary-example javascript-code-review-example rust-code-improvement-example create-html-component-example ask-intention-example create-image-example edit-image-example
+examples: conversation-summary-example javascript-code-review-example rust-code-improvement-example create-html-component-example edit-sentence-example edit-code-example create-image-example edit-image-example ask-intention-example
 
 javascript-code-review-example:
 	@echo "Example -----------------------------------------------------------------------"
@@ -47,6 +47,22 @@ ask-intention-example:
 	@echo "Do you plan on becoming our overlord and supreme ruler?"
 	@echo "Response ----------------------------------------------------------------------"
 	@oai "Do you plan on becoming our overlord and supreme ruler?"
+	@echo "\n\n"
+
+edit-sentence-example:
+	@echo "Example -----------------------------------------------------------------------"
+	@echo "Prompt: Door swing open and shut when the wind blows down the halls."
+	@echo "Instructions: Correct the sentence with proper english grammer."
+	@echo "Response ----------------------------------------------------------------------"
+	@oai -m text-davinci-edit-001 -t 1.2 "Door swing open and shut when the wind blows down the halls." "Correct the sentence with proper english grammer."
+	@echo "\n\n"
+
+edit-code-example:
+	@echo "Example -----------------------------------------------------------------------"
+	@cat examples/refactor
+	@echo "Instructions: Refactor for reuse in rust."
+	@echo "Response ----------------------------------------------------------------------"
+	@oai -m code-davinci-edit-001 --max-tokens 236 @examples/refactor "Refactor for reuse in rust."
 	@echo "\n\n"
 
 create-image-example:
