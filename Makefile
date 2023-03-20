@@ -60,9 +60,9 @@ edit-sentence-example:
 edit-code-example:
 	@echo "Example -----------------------------------------------------------------------"
 	@cat examples/refactor
-	@echo "Instructions: Refactor for reuse in rust."
+	@echo "Instructions: Refactor into a single struct with generic in rust."
 	@echo "Response ----------------------------------------------------------------------"
-	@oai -m code-davinci-edit-001 --max-tokens 236 @examples/refactor "Refactor for reuse in rust."
+	@oai -m code-davinci-edit-001 --max-tokens 236 @examples/refactor "Refactor into a single struct with generic in rust."
 	@echo "\n\n"
 
 create-image-example:
