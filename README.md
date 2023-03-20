@@ -77,6 +77,10 @@ Examples are provided in the Makefile instructions. They can be triggered using 
 { echo "Please give a coded modification with a generic in the following Rust module:"; cat examples/test.rs; } | oai
 { echo "Please give me a summary of the following conversation:"; cat examples/convo.txt; } | oai
 oai -t 1.2 "Write an HTML component with shadow DOM that ingest a style object and data object to create a button that displays a modal with data and allows the user to escape modal with the keyboards to escape key or exit button." > examples/button.html
+oai -m text-davinci-edit-001 -t 1.2 "Door swing open and shut when the wind blows down the halls." "Correct the sentence with proper english grammer."
+oai -m code-davinci-edit-001 --max-tokens 236 @examples/refactor "Refactor into a single struct with generic in rust."
+oai image --save ~/.openai "Hand drawn rose on mountain top with the sun beaming down on it done with pencil only."
+oai image --save ~/.openai -i examples/output.png -m examples/output_mask.png "Create a galatic adventure in the background."
 oai "Do you plan on becoming our overlord and supreme ruler?"
 ```
 
