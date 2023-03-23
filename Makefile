@@ -1,4 +1,5 @@
 .PHONY: build
+SLEEP = 10
 
 build:
 	cargo build --release
@@ -17,6 +18,7 @@ javascript-code-review-example:
 	@echo "Response ----------------------------------------------------------------------"
 	@{ echo "Please review the code and tell me if there are mistakes:"; cat examples/index.js; } | oai
 	@echo "\n\n"
+	@sleep $(SLEEP)
 
 rust-code-improvement-example:
 	@echo "Example -----------------------------------------------------------------------"
@@ -25,6 +27,7 @@ rust-code-improvement-example:
 	@echo "Response ----------------------------------------------------------------------"
 	@{ echo "Please give a coded modification with a generic in the following Rust module:"; cat examples/test; } | oai
 	@echo "\n\n"
+	@sleep $(SLEEP)
 
 conversation-summary-example:
 	@echo "Example -----------------------------------------------------------------------"
@@ -33,6 +36,7 @@ conversation-summary-example:
 	@echo "Response ----------------------------------------------------------------------"
 	@{ echo "Please give me a summary of the following conversation:"; cat examples/convo.txt; } | oai
 	@echo "\n\n"
+	@sleep $(SLEEP)
 
 create-html-component-example:
 	@echo "Example -----------------------------------------------------------------------"
@@ -41,6 +45,7 @@ create-html-component-example:
 	@oai -t 1.2 "Write an HTML component with shadow DOM that ingest a style object and data object to create a button that displays a modal with data and allows the user to escape modal with the keyboards to escape key or exit button." > examples/button.html
 	@cat examples/button.html
 	@echo "\n\n"
+	@sleep $(SLEEP)
 
 ask-intention-example:
 	@echo "Example -----------------------------------------------------------------------"
@@ -48,6 +53,7 @@ ask-intention-example:
 	@echo "Response ----------------------------------------------------------------------"
 	@oai "Do you plan on becoming our overlord and supreme ruler?"
 	@echo "\n\n"
+	@sleep $(SLEEP)
 
 edit-sentence-example:
 	@echo "Example -----------------------------------------------------------------------"
@@ -56,6 +62,7 @@ edit-sentence-example:
 	@echo "Response ----------------------------------------------------------------------"
 	@oai -m text-davinci-edit-001 -t 1.2 "Door swing open and shut when the wind blows down the halls." "Correct the sentence with proper english grammer."
 	@echo "\n\n"
+	@sleep $(SLEEP)
 
 edit-code-example:
 	@echo "Example -----------------------------------------------------------------------"
@@ -64,15 +71,18 @@ edit-code-example:
 	@echo "Response ----------------------------------------------------------------------"
 	@oai -m code-davinci-edit-001 --max-tokens 236 @examples/refactor "Refactor into a single struct with generic in rust."
 	@echo "\n\n"
+	@sleep $(SLEEP)
 
 create-image-example:
 	@echo "Example -----------------------------------------------------------------------"
 	@echo "Hand drawn rose on mountain top with the sun beaming down on it done with pencil only."
 	@echo "Response ----------------------------------------------------------------------"
 	@oai image --save ~/.openai "Hand drawn rose on mountain top with the sun beaming down on it done with pencil only."
+	@sleep $(SLEEP)
 
 edit-image-example:
 	@echo "Example -----------------------------------------------------------------------"
 	@echo "Create a galatic adventure in the background."
 	@echo "Response ----------------------------------------------------------------------"
 	@oai image --save ~/.openai -i examples/output.png -m examples/output_mask.png "Create a galatic adventure in the background."
+	@sleep $(SLEEP)

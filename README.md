@@ -84,6 +84,8 @@ oai image --save ~/.openai -i examples/output.png -m examples/output_mask.png "C
 oai "Do you plan on becoming our overlord and supreme ruler?"
 ```
 
+![example](examples/oai-examples.gif)
+
 ---
 Copyright 2023 Brandon Laurence Clark
 
