@@ -53,6 +53,7 @@ files         List, upload or remove files for account
 fine-tunes    List, create, or cancel fine-tune jobs
 audio         Transcribe or translate audio to text
 image         Generate new, edited or variation images
+embedding     Generate embedding from input
 ```
 
 ### OpenAI Authentication Configuration
