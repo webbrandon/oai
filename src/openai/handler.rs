@@ -87,6 +87,9 @@ impl OpenAIHandler {
             OpenAIRequest::OpenAICompletionEditRequest(request) => {
                 self.response = request.to_owned().process_response(response_body);
             },
+            OpenAIRequest::OpenAIEmbeddingRequest(request) => {
+                self.response = request.to_owned().process_response(response_body);
+            },
             OpenAIRequest::OpenAIFilesRequest(request) => {
                 self.response = request.to_owned().process_response(response_body);
             },
@@ -162,6 +165,9 @@ impl OpenAIHandler {
             },
             OpenAIRequest::OpenAICompletionEditRequest(_) => {
                 endpoint.push_str("/v1/edits");
+            },
+            OpenAIRequest::OpenAIEmbeddingRequest(_) => {
+                endpoint.push_str("/v1/embeddings");
             },
             OpenAIRequest::OpenAIFilesRequest(_) => {
                 endpoint.push_str("/v1/files");
@@ -281,6 +287,11 @@ impl OpenAIHandler {
         	    client.post(endpoint).headers(self.clone().headers()).json(request).send().await
             },
             OpenAIRequest::OpenAICompletionEditRequest(request) => {
+                debug!("Request being made with parameters: {:#?}", request);
+                self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
+        	    client.post(endpoint).headers(self.clone().headers()).json(request).send().await
+            },
+            OpenAIRequest::OpenAIEmbeddingRequest(request) => {
                 debug!("Request being made with parameters: {:#?}", request);
                 self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
         	    client.post(endpoint).headers(self.clone().headers()).json(request).send().await
@@ -427,7 +438,7 @@ impl OpenAIHandler {
             OpenAIRequest::OpenAIModelDeleteRequest(request) => {
                 self.headers.insert(CONTENT_TYPE,HeaderValue::from_static("application/json"));
         	    client.delete(format!("{}{}", endpoint, request.model_name)).headers(self.clone().headers()).send().await
-            }
+            },
             OpenAIRequest::None => {
                 std::process::exit(1)
             },

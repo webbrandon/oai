@@ -132,6 +132,16 @@ async fn process_cli_request(mut openai_handler: OpenAIHandler, cli_options: Cli
 
                     process_image_response(&mut openai_handler, request_settings).await
                 }
+                CliRequest::CliEmbeddings(request_settings) => {
+                    debug!("CliEmbeddings request made");
+                    openai_handler.set_request(OpenAIRequest::OpenAIEmbeddingRequest(OpenAIEmbeddingRequest {
+                        user: request_settings.clone().user(),
+                        input: request_settings.input().to_owned(),
+                        model: request_settings.model().to_owned(),
+
+                    }));
+                    process_response(&mut openai_handler).await
+                },
             }
         },
         None => {
@@ -155,6 +165,9 @@ async fn process_response(openai_handler: &mut OpenAIHandler) {
                 },
                 OpenAIResponse::OpenAICompletionEditResponse(data) => {
                     data.print_choices();
+                },
+                OpenAIResponse::OpenAIEmbeddingResponse(data) => {
+                    data.print_response()
                 },
                 OpenAIResponse::OpenAIFilesResponse(data) => {
                     data.print_files()
@@ -218,6 +231,9 @@ async fn process_image_response(openai_handler: &mut OpenAIHandler, cli_options:
                 OpenAIResponse::OpenAICompletionEditResponse(data) => {
                     data.print_choices();
                 },
+                OpenAIResponse::OpenAIEmbeddingResponse(data) => {
+                    data.print_response()
+                },
                 OpenAIResponse::OpenAIFilesResponse(data) => {
                     data.print_files()
                 },
@@ -249,6 +265,7 @@ async fn process_image_response(openai_handler: &mut OpenAIHandler, cli_options:
                         OpenAIRequest::OpenAIAudioTranscriptionRequest(_) => {}
                         OpenAIRequest::OpenAICompletionsRequest(_) => {}
                         OpenAIRequest::OpenAICompletionEditRequest(_) => {}
+                        OpenAIRequest::OpenAIEmbeddingRequest(_) => {}
                         OpenAIRequest::OpenAIFilesRequest(_) => {}
                         OpenAIRequest::OpenAIFileDeleteRequest(_) => {}
                         OpenAIRequest::OpenAIFileUploadRequest(_) => {}
@@ -276,6 +293,7 @@ async fn process_image_response(openai_handler: &mut OpenAIHandler, cli_options:
                         OpenAIRequest::OpenAIAudioTranscriptionRequest(_) => {}
                         OpenAIRequest::OpenAICompletionsRequest(_) => {}
                         OpenAIRequest::OpenAICompletionEditRequest(_) => {}
+                        OpenAIRequest::OpenAIEmbeddingRequest(_) => {}
                         OpenAIRequest::OpenAIFilesRequest(_) => {}
                         OpenAIRequest::OpenAIFileDeleteRequest(_) => {}
                         OpenAIRequest::OpenAIFileUploadRequest(_) => {}
@@ -303,6 +321,7 @@ async fn process_image_response(openai_handler: &mut OpenAIHandler, cli_options:
                         OpenAIRequest::OpenAIAudioTranscriptionRequest(_) => {}
                         OpenAIRequest::OpenAICompletionsRequest(_) => {}
                         OpenAIRequest::OpenAICompletionEditRequest(_) => {}
+                        OpenAIRequest::OpenAIEmbeddingRequest(_) => {}
                         OpenAIRequest::OpenAIFilesRequest(_) => {}
                         OpenAIRequest::OpenAIFileDeleteRequest(_) => {}
                         OpenAIRequest::OpenAIFileUploadRequest(_) => {}

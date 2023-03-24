@@ -3,12 +3,14 @@ mod files;
 mod finetune;
 mod audio;
 mod images;
+mod embeddings;
 
 pub use models::CliModels;
 pub use files::CliFiles;
 pub use finetune::CliFineTune;
 pub use audio::CliAudio;
 pub use images::CliImage;
+pub use embeddings::CliEmbeddings;
 use std::fs;
 use structopt::StructOpt;
 use structopt::clap::AppSettings::*;
@@ -100,6 +102,9 @@ pub enum CliRequest {
 	/// Generate new, edited or variation images
 	#[structopt(name = "image")]
 	CliImage(CliImage),
+	/// Generate embedding from input
+	#[structopt(name = "embedding")]
+	CliEmbeddings(CliEmbeddings),
 }
 
 impl CliRequest {
