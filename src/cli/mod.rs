@@ -114,13 +114,13 @@ impl CliRequest {
 }
 
 impl CliInterface {
-	pub async fn prompt(mut self) -> String {
+	pub async fn prompt(self) -> String {
 		trace!("prompt value request");
 		if self.clone().prompt.is_some() {
 			trace!("prompt value provided");
 			match self.clone().prompt_string().await {
 			    Some(prompt_response) => {
-					prompt_response.to_owned()
+					prompt_response
 				}
 			    None => {
 					self.clone().prompt.unwrap()
@@ -152,10 +152,10 @@ impl CliInterface {
 	async fn prompt_string(mut self) -> Option<String> {
 		match &self.prompt {
 			Some(prompt) => {
-				let first_char = prompt.chars().nth(0).clone().unwrap();
+				let first_char = prompt.chars().next().unwrap();
 				if self.clone().is_file_flag(first_char) {
-					debug!("attempting to open file for context: {}", prompt.clone().replace("@", ""));
-					match fs::read_to_string(prompt.clone().replace("@", "")) {
+					debug!("attempting to open file for context: {}", prompt.clone().replace('@', ""));
+					match fs::read_to_string(prompt.clone().replace('@', "")) {
 						Ok(file_content) => {
 							self.prompt = Some(file_content);
 							self.prompt
@@ -190,12 +190,12 @@ impl CliInterface {
 
 	pub fn max_tokens(&mut self) -> usize {
 		trace!("max-tokens value request");
-		self.max_tokens.clone()
+		self.max_tokens
 	}
 
 	pub fn temperature(&mut self) -> f32 {
 		trace!("temperature value request");
-		self.temperature.clone()
+		self.temperature
 	}
 
 	pub fn api_auth_token(&mut self) -> String {
@@ -268,10 +268,10 @@ impl CliInterface {
     pub async fn instruction(mut self) -> Option<String> {
 		match &self.instruction {
 		    Some(instruction) => {
-				let first_char = instruction.chars().nth(0).clone().unwrap();
+				let first_char = instruction.chars().next().unwrap();
 				if self.clone().is_file_flag(first_char) {
-					debug!("attempting to open file for context: {}", instruction.replace("@", ""));
-					match fs::read_to_string(instruction.replace("@", "")) {
+					debug!("attempting to open file for context: {}", instruction.replace('@', ""));
+					match fs::read_to_string(instruction.replace('@', "")) {
 					    Ok(file_content) => {
 							self.instruction = Some(file_content);
 							self.instruction
@@ -289,11 +289,7 @@ impl CliInterface {
 		}
     }
 
-	pub fn is_file_flag(mut self, segment: char) -> bool {
-		if segment == '@' {
-			true
-		} else {
-			false
-		}
+	pub fn is_file_flag(self, segment: char) -> bool {
+		segment == '@'
 	}
 }

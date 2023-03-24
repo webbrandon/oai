@@ -18,14 +18,7 @@ pub struct CliFiles {
 impl CliFiles {
     /// Get a file if passed.
     pub fn file(&self) -> Option<PathBuf> {
-        match &self.file {
-            Some(file_path) => {
-                Some(file_path.to_owned())
-            }
-            None => {
-                return None
-            }
-        }
+        self.file.as_ref().map(|file_path| file_path.to_owned())
     }
 
     /// Get a reference to the cli files's purpose.
@@ -35,9 +28,6 @@ impl CliFiles {
 
     /// Delete a file
     pub fn delete(&self) -> Option<String> {
-        match self.delete.to_owned() {
-            Some(filename) => Some(filename),
-            None => None
-        }
+        self.delete.to_owned()
     }
 }

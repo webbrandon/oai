@@ -16,9 +16,9 @@ pub struct OpenAIHandler {
 
 impl OpenAIHandler {
     pub fn new() -> OpenAIHandler {
-        let mut headers = HeaderMap::new();
+        let headers = HeaderMap::new();
         OpenAIHandler {
-            headers: headers,
+            headers,
             request: OpenAIRequest::None,
             response: OpenAIResponse::None,
         }
@@ -28,7 +28,7 @@ impl OpenAIHandler {
         let mut headers = HeaderMap::new();
         headers.insert("Authorization", HeaderValue::from_str(&format!("Bearer {}", token)).expect(""));
         OpenAIHandler {
-            headers: headers,
+            headers,
             request: OpenAIRequest::None,
             response: OpenAIResponse::None,
         }
@@ -233,7 +233,7 @@ impl OpenAIHandler {
 
                 let filename = String::from(request.file.file_name().unwrap().to_str().unwrap());
                 let part = Part::bytes(buffer).file_name(filename);
-                let mut form = reqwest::multipart::Form::new().part("file", part.into());
+                let mut form = reqwest::multipart::Form::new().part("file", part);
 
                 match &request.prompt {
                     Some(prompt) => {
@@ -261,7 +261,7 @@ impl OpenAIHandler {
 
                 let filename = String::from(request.file.file_name().unwrap().to_str().unwrap());
                 let part = Part::bytes(buffer).file_name(filename);
-                let mut form = reqwest::multipart::Form::new().part("file", part.into());
+                let mut form = reqwest::multipart::Form::new().part("file", part);
 
                 match &request.language {
                     Some(language) => {
@@ -319,7 +319,7 @@ impl OpenAIHandler {
                 let filename = String::from(request.file.file_name().unwrap().to_str().unwrap());
                 let purpose = String::from(&request.purpose);
                 let part = Part::bytes(buffer).file_name(filename);
-                let form = reqwest::multipart::Form::new().part("file", part.into()).text("purpose", purpose);
+                let form = reqwest::multipart::Form::new().part("file", part).text("purpose", purpose);
 
         	    client.post(endpoint).headers(self.clone().headers()).multipart(form).send().await
             },
@@ -381,8 +381,8 @@ impl OpenAIHandler {
                             let mask_filename = String::from(mask_file.file_name().unwrap().to_str().unwrap());
                             let mask_part = Part::bytes(mask_src).file_name(mask_filename);
                             let form = reqwest::multipart::Form::new()
-                                .part("image", img_part.into())
-                                .part("mask", mask_part.into());
+                                .part("image", img_part)
+                                .part("mask", mask_part);
                             let form = form.text("n", request.clone().n.to_string())
                                 .text("size", request.clone().size)
                                 .text("response_format", request.clone().response_format)
@@ -395,7 +395,7 @@ impl OpenAIHandler {
                         let img_filename = String::from(image_file.file_name().unwrap().to_str().unwrap());
                         let img_part = Part::bytes(img_src).file_name(img_filename);
 
-                        let form = reqwest::multipart::Form::new().part("image", img_part.into());
+                        let form = reqwest::multipart::Form::new().part("image", img_part);
                         let form = form.text("n", request.clone().n.to_string())
                             .text("size", request.clone().size)
                             .text("response_format", request.clone().response_format)
@@ -423,7 +423,7 @@ impl OpenAIHandler {
                 let img_filename = String::from(image_file.file_name().unwrap().to_str().unwrap());
                 let img_part = Part::bytes(img_src).file_name(img_filename);
 
-                let form = reqwest::multipart::Form::new().part("image", img_part.into());
+                let form = reqwest::multipart::Form::new().part("image", img_part);
                 let form = form.text("n", request.clone().n.to_string())
                     .text("size", request.clone().size)
                     .text("response_format", request.clone().response_format)

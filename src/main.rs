@@ -12,7 +12,7 @@ use reqwest::Error;
 use std::env;
 
 // Logging interfaces
-use env_logger;
+
 use log::LevelFilter;
 use env_logger::Builder;
 
@@ -76,31 +76,31 @@ async fn process_cli_request(mut openai_handler: OpenAIHandler, cli_options: Cli
                             match &request_settings.mask() {
                                 Some(mask) => {
                                     openai_handler.set_request(OpenAIRequest::OpenAIImageEditRequest(OpenAIImageEditRequest {
-                                        user: Some(request_settings.to_owned().user().to_owned()),
+                                        user: Some(request_settings.to_owned().user()),
                                         response_format: request_settings.response_format().to_owned(),
                                         size: request_settings.size().to_owned(),
                                         n: request_settings.n().to_owned(),
                                         image: Some(img.to_owned()),
                                         mask: Some(mask.to_owned()),
-                                        prompt: Some(request_settings.prompt().to_owned()),
+                                        prompt: Some(request_settings.prompt()),
                                     }));
                                 }
                                 None => {
                                     match &request_settings.is_prompt() {
                                         true => {
                                             openai_handler.set_request(OpenAIRequest::OpenAIImageEditRequest(OpenAIImageEditRequest {
-                                                user: Some(request_settings.to_owned().user().to_owned()),
+                                                user: Some(request_settings.to_owned().user()),
                                                 response_format: request_settings.response_format().to_owned(),
                                                 size: request_settings.size().to_owned(),
                                                 n: request_settings.n().to_owned(),
                                                 image: Some(img.to_owned()),
                                                 mask: None,
-                                                prompt: Some(request_settings.prompt().to_owned()),
+                                                prompt: Some(request_settings.prompt()),
                                             }));
                                         }
                                         false => {
                                             openai_handler.set_request(OpenAIRequest::OpenAIImageVariationRequest(OpenAIImageVariationRequest {
-                                                user: Some(request_settings.to_owned().user().to_owned()),
+                                                user: Some(request_settings.to_owned().user()),
                                                 response_format: request_settings.response_format().to_owned(),
                                                 size: request_settings.size().to_owned(),
                                                 n: request_settings.n().to_owned(),
@@ -115,11 +115,11 @@ async fn process_cli_request(mut openai_handler: OpenAIHandler, cli_options: Cli
                             match &request_settings.is_prompt() {
                                 true => {
                                     openai_handler.set_request(OpenAIRequest::OpenAIImagesRequest(OpenAIImagesRequest {
-                                        user: Some(request_settings.to_owned().user().to_owned()),
+                                        user: Some(request_settings.to_owned().user()),
                                         response_format: request_settings.response_format().to_owned(),
                                         size: request_settings.size().to_owned(),
                                         n: request_settings.n().to_owned(),
-                                        prompt: Some(request_settings.prompt().to_owned()),
+                                        prompt: Some(request_settings.prompt()),
                                     }));
                                 }
                                 false => {
@@ -193,13 +193,13 @@ async fn process_response(openai_handler: &mut OpenAIHandler) {
                 OpenAIResponse::OpenAIFineTuneDetailResponse(data) => {
                     data.print_details()
                 },
-                OpenAIResponse::OpenAIImagesResponse(data) => {
+                OpenAIResponse::OpenAIImagesResponse(_data) => {
 
                 },
-                OpenAIResponse::OpenAIImageEditResponse(data) => {
+                OpenAIResponse::OpenAIImageEditResponse(_data) => {
 
                 },
-                OpenAIResponse::OpenAIImageVariationResponse(data) => {
+                OpenAIResponse::OpenAIImageVariationResponse(_data) => {
 
                 },
                 OpenAIResponse::OpenAIModelsResponse(data) => {
@@ -477,7 +477,7 @@ async fn create_completions_request(openai_handler: &mut OpenAIHandler, mut requ
             let input = request_settings.clone().prompt().await;
             openai_handler.set_request(OpenAIRequest::OpenAICompletionEditRequest(OpenAICompletionEditRequest {
                 model: request_settings.model(),
-                input: input,
+                input,
                 instruction: instruction.to_owned(),
                 temperature: request_settings.temperature(),
                 n: request_settings.n().to_owned(),

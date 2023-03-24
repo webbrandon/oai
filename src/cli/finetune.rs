@@ -50,14 +50,7 @@ pub struct CliFineTune {
 impl CliFineTune {
     /// Get a file if passed.
     pub fn training_file(&self) -> Option<String> {
-        match &self.training_file {
-            Some(file_path) => {
-                Some(file_path.to_owned())
-            }
-            None => {
-                return None
-            }
-        }
+        self.training_file.as_ref().map(|file_path| file_path.to_owned())
     }
 
     /// Delete a file
