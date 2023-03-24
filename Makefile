@@ -58,9 +58,9 @@ ask-intention-example:
 edit-sentence-example:
 	@echo "Example -----------------------------------------------------------------------"
 	@echo "Prompt: Door swing open and shut when the wind blows down the halls."
-	@echo "Instructions: Correct the sentence with proper english grammer."
+	@echo "Instructions: Correct the sentence with proper english grammar."
 	@echo "Response ----------------------------------------------------------------------"
-	@oai -m text-davinci-edit-001 -t 1.2 "Door swing open and shut when the wind blows down the halls." "Correct the sentence with proper english grammer."
+	@oai -m text-davinci-edit-001 -t 1.2 "Door swing open and shut when the wind blows down the halls." "Correct the sentence with proper english grammar."
 	@echo "\n\n"
 	@sleep $(SLEEP)
 
@@ -82,7 +82,7 @@ create-image-example:
 
 edit-image-example:
 	@echo "Example -----------------------------------------------------------------------"
-	@echo "Create a galatic adventure in the background."
+	@echo "Create a galactic adventure in the background."
 	@echo "Response ----------------------------------------------------------------------"
-	@oai image --save ~/.openai -i examples/output.png -m examples/output_mask.png "Create a galatic adventure in the background."
+	@oai image --save ~/.openai -i examples/output.png -m examples/output_mask.png "Create a galactic adventure in the background."
 	@sleep $(SLEEP)
