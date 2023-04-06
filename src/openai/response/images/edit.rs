@@ -30,7 +30,7 @@ impl OpenAIImageEditResponse {
         }
 	}
 
-	pub fn save_images(mut self, size: String, mut out_path: PathBuf) {
+	pub fn save_images(self, size: String, mut out_path: PathBuf) {
 		trace!("save images to {:#?}", out_path.to_string_lossy());
         std::fs::create_dir_all(&out_path).unwrap();
         let out_path = match &out_path.is_file() {
@@ -50,9 +50,9 @@ impl OpenAIImageEditResponse {
                 }
             },
         };
-        let size_range = size.split("x").collect::<Vec<&str>>();
-        let x:u32 = size_range[0].parse::<u32>().unwrap();
-        let y:u32 = size_range[1].parse::<u32>().unwrap();
+        let size_range = size.split('x').collect::<Vec<&str>>();
+        let _x:u32 = size_range[0].parse::<u32>().unwrap();
+        let _y:u32 = size_range[1].parse::<u32>().unwrap();
 		for img in &self.data {
             let image_string = img.b64_json.to_owned().unwrap();
             let decoded_image = base64::decode_config(image_string, base64::STANDARD).unwrap();
@@ -73,11 +73,11 @@ impl OpenAIImageEditResponse {
         }
 	}
 
-	pub fn print_images(mut self, size: String) {
+	pub fn print_images(self, size: String) {
 		trace!("print images");
-        let size_range = size.split("x").collect::<Vec<&str>>();
-        let x:u32 = size_range[0].parse::<u32>().unwrap();
-        let y:u32 = size_range[1].parse::<u32>().unwrap();
+        let size_range = size.split('x').collect::<Vec<&str>>();
+        let _x:u32 = size_range[0].parse::<u32>().unwrap();
+        let _y:u32 = size_range[1].parse::<u32>().unwrap();
 		for img in &self.data {
             let conf = Config {
                 x: 0,

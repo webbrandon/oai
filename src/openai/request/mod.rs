@@ -6,6 +6,7 @@ pub mod models;
 pub mod finetune;
 pub mod audio;
 pub mod images;
+pub mod embeddings;
 
 pub use completions::*;
 pub use files::*;
@@ -13,6 +14,7 @@ pub use models::*;
 pub use finetune::*;
 pub use audio::*;
 pub use images::*;
+pub use embeddings::*;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum OpenAIRequest {
@@ -20,6 +22,7 @@ pub enum OpenAIRequest {
     OpenAIAudioTranscriptionRequest(OpenAIAudioTranscriptionRequest),
     OpenAICompletionsRequest(OpenAICompletionsRequest),
     OpenAICompletionEditRequest(OpenAICompletionEditRequest),
+    OpenAIEmbeddingRequest(OpenAIEmbeddingRequest),
     OpenAIFilesRequest(OpenAIFilesRequest),
     OpenAIFileDeleteRequest(OpenAIFileDeleteRequest),
     OpenAIFileUploadRequest(OpenAIFileUploadRequest),

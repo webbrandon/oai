@@ -27,6 +27,6 @@ pub struct Choice {
 impl Choice {
 	fn remove_newline_prepend(self) -> String {
 		trace!("remove newline prepend");
-		self.text.clone().replacen("\n\n", "", 1)
+		self.text.replacen("\n\n", "", 1)
 	}
 }
